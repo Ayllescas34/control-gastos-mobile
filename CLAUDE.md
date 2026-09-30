@@ -38,6 +38,7 @@ Android-specific:
 - Kotlin solamente cuando sea necesario implementar funcionalidad nativa de Android.
 - No convertir toda la aplicación a Kotlin.
 - La lógica general de negocio debe permanecer en TypeScript cuando sea apropiado.
+- No modificar Android nativo sin aprobación previa, excepto cuando una dependencia o funcionalidad previamente aprobada requiera explícitamente cambios nativos. En ese caso, explicar primero los archivos y cambios.
 
 ### Backend
 
