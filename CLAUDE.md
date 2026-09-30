@@ -70,12 +70,57 @@ No crear backend todavía.
 
 ## Git
 
-- La rama principal es main.
+- La rama estable es main y la rama de integración es develop.
 - Git está inicializado en la raíz del proyecto.
 - No crear otro repositorio Git dentro de mobile/ ni backend/.
 - No ejecutar push automáticamente.
 - No crear commits automáticamente salvo que el usuario lo solicite explícitamente.
 - Antes de un commit, revisar git status y los archivos que serán incluidos.
+
+### Git Flow
+
+Ramas principales:
+
+- main: rama estable/producción.
+- develop: rama de integración.
+- feature/*: ramas de desarrollo de funcionalidades.
+
+Reglas:
+
+- No desarrollar directamente sobre main.
+- No desarrollar funcionalidades directamente sobre develop.
+- Las nuevas funcionalidades deben partir de develop.
+- Las funcionalidades deben utilizar ramas feature/<nombre-descriptivo>.
+- Las feature branches deben abrir Pull Request hacia develop.
+- No hacer merge automático de una feature.
+- No hacer push directo de funcionalidades a main.
+- develop se integra hacia main mediante Pull Request.
+- No crear release/*, hotfix/* u otras ramas hasta que el proyecto lo requiera.
+
+Flujo:
+
+```
+develop
+   ↓
+feature/<nombre>
+   ↓
+Pull Request
+   ↓
+develop
+   ↓
+Pull Request
+   ↓
+main
+```
+
+### Reglas Git para Claude Code
+
+- Trabajar en la feature branch correspondiente.
+- No hacer commits directamente sobre main.
+- No hacer commits de funcionalidades directamente sobre develop.
+- No hacer merge de Pull Requests automáticamente.
+- No hacer force push.
+- Informar antes de operaciones que puedan reescribir historial.
 
 ## Calidad
 
