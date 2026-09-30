@@ -1,0 +1,32 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Builds
+dist/
+build/
+coverage/
+
+# Android
+.gradle/
+.cxx/
+local.properties
+*.keystore
+*.jks
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
