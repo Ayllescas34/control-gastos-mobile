@@ -1,4 +1,15 @@
-export type { Transaction, TransactionType } from './domain/types';
+export type {
+  Transaction,
+  TransactionSource,
+  TransactionStatus,
+  TransactionType,
+} from './domain/types';
+export {
+  validateTransaction,
+  type TransactionValidationContext,
+  type TransactionValidationError,
+  type TransactionValidationResult,
+} from './domain/validateTransaction';
 export { TransactionListItem } from './components/TransactionListItem';
 export { DEMO_TRANSACTIONS } from './demo/demoTransactions';
 export { TransactionsScreen } from './screens/TransactionsScreen';
