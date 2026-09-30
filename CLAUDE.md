@@ -167,4 +167,11 @@ El entorno confirmado incluye:
 - Android Emulator
 - ADB funcionando
 
-El proyecto móvil actualmente es el proyecto generado por la plantilla oficial de React Native y todavía no se ha comenzado el desarrollo funcional de Control de Gastos.
+La aplicación móvil ya tiene una base de arquitectura sobre la plantilla oficial:
+
+- Organización por features en `mobile/src/`: `app/` (navegación y providers), `core/` (configuración), `features/` (una carpeta por funcionalidad, con `domain/`, `components/`, `screens/` y un `index.ts` público) y `shared/` (componentes, tema y utilidades de dinero y fechas).
+- Navegación con React Navigation: tabs principales, detalle de movimiento y modal de nuevo movimiento.
+- Las pantallas usan datos de demostración (`demo/`); todavía no hay persistencia.
+- Modelo de dominio de `Account`, `Card` y `Transaction` con validación pura de transacciones. Las reglas están en `docs/domain-model.md`.
+
+Todavía no existen persistencia local, manejo de estado global, formularios funcionales ni backend.

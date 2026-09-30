@@ -1,3 +1,9 @@
+import type {
+  EntityId,
+  IsoDateTime,
+  LocalDate,
+  Timestamps,
+} from '../../../shared/domain';
 import type { CurrencyCode, MinorUnits } from '../../../shared/lib/money';
 
 export type TransactionType = 'income' | 'expense' | 'transfer';
@@ -7,31 +13,28 @@ export type TransactionSource = 'manual' | 'import' | 'notification' | 'api';
 export type TransactionStatus = 'confirmed' | 'pending';
 
 /**
- * Conceptual model only; persistence and business rules come in later phases.
+ * Domain rules: docs/domain-model.md. Invariants are checked by validateTransaction.
  * - transfer: accountId = origin, toAccountId = destination (card payments included).
  * - expense paid with a card: accountId = account backing the card, cardId = plastic used.
  */
-export type Transaction = {
-  id: string;
+export type Transaction = Timestamps & {
+  id: EntityId;
   type: TransactionType;
   /** Always a positive integer; the sign is given by `type`. */
   amountMinor: MinorUnits;
   currency: CurrencyCode;
-  accountId: string;
-  toAccountId: string | null;
-  categoryId: string | null;
-  cardId: string | null;
-  /** UTC instant, ISO 8601. */
-  occurredAt: string;
-  /** Civil date in the device time zone when recorded, "YYYY-MM-DD". */
-  localDate: string;
+  accountId: EntityId;
+  toAccountId: EntityId | null;
+  categoryId: EntityId | null;
+  cardId: EntityId | null;
+  /** UTC instant. */
+  occurredAt: IsoDateTime;
+  /** Civil date in the device time zone when recorded. */
+  localDate: LocalDate;
   description: string | null;
   payee: string | null;
   note: string | null;
   source: TransactionSource;
   status: TransactionStatus;
   externalRef: string | null;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
 };
