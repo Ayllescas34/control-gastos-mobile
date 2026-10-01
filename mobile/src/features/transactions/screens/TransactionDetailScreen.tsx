@@ -8,17 +8,12 @@ import {
   EmptyState,
   Screen,
 } from '../../../shared/components';
+import { IconBadge } from '../../../shared/icons';
 import { formatLocalDate } from '../../../shared/lib/dates';
 import { formatMoney } from '../../../shared/lib/money';
 import { spacing } from '../../../shared/theme';
+import { TRANSACTION_TYPE_VISUALS } from '../components/transactionTypeVisuals';
 import { findDemoTransaction } from '../demo/demoTransactions';
-import type { TransactionType } from '../domain/types';
-
-const TYPE_LABEL: Record<TransactionType, string> = {
-  income: 'Ingreso',
-  expense: 'Gasto',
-  transfer: 'Transferencia',
-};
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TransactionDetail'>;
 
@@ -34,13 +29,18 @@ export function TransactionDetailScreen({ route }: Props) {
     );
   }
 
+  const visual = TRANSACTION_TYPE_VISUALS[transaction.type];
+
   return (
     <Screen>
       <DemoBadge />
       <Card>
-        <AppText variant="caption" color="textSecondary">
-          {TYPE_LABEL[transaction.type]}
-        </AppText>
+        <View style={styles.typeRow}>
+          <IconBadge name={visual.icon} variant={visual.tone} size="sm" />
+          <AppText variant="label" color="textSecondary">
+            {visual.label}
+          </AppText>
+        </View>
         <AppText variant="title">{transaction.description}</AppText>
         <AppText variant="amountHero">
           {formatMoney(transaction.amountMinor, transaction.currency)}
@@ -69,6 +69,12 @@ function DetailRow({ label, value }: { label: string; value: string | null }) {
 }
 
 const styles = StyleSheet.create({
+  typeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
