@@ -186,3 +186,8 @@ Todavía no existen manejo de estado global, formularios funcionales ni backend.
 - Dinero siempre como INTEGER en unidades menores. Nunca REAL ni decimales.
 - Atomicidad con `database.withTransaction`, no con `db.transaction()` de Drizzle.
 - Los tests de base de datos usan SQLite real (`node:sqlite`, `createTestDatabase`); no se mockea SQL.
+
+## UI
+
+- Design System en `mobile/src/shared/theme/`: usar sus tokens (colores, tipografía, spacing, radius, sombras, iconografía); no colores ni tamaños literales en pantallas.
+- Iconos solo mediante `Icon`, `IconBadge` e `IconButton` de `mobile/src/shared/icons/`. Nunca importar `lucide-react-native` fuera de esa carpeta (ESLint lo bloquea). Detalles en `docs/ui-icons.md`.

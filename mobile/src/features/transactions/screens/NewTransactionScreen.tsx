@@ -8,6 +8,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'NewTransaction'>;
 export function NewTransactionScreen({ navigation }: Props) {
   return (
     <EmptyState
+      icon="add"
       title="Nuevo movimiento"
       message="Aquí se registrarán gastos, ingresos y transferencias. Disponible en una próxima fase."
     >

@@ -1,7 +1,9 @@
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { AppText } from '../../shared/components';
-import { radius, useAppTheme } from '../../shared/theme';
+import { Icon } from '../../shared/icons';
+import { layout, radius, useAppTheme } from '../../shared/theme';
+
+const PRESSED_OPACITY = 0.85;
 
 /** Center "main action" button of the tab bar. */
 export function AddTabButton({ onPress }: BottomTabBarButtonProps) {
@@ -11,14 +13,22 @@ export function AddTabButton({ onPress }: BottomTabBarButtonProps) {
     <Pressable
       accessibilityRole="button"
       accessibilityLabel="Agregar movimiento"
+      accessibilityHint="Abre el registro de un nuevo movimiento"
       onPress={onPress}
       style={styles.container}
     >
-      <View style={[styles.circle, { backgroundColor: theme.colors.primary }]}>
-        <AppText variant="title" style={{ color: theme.colors.onPrimary }}>
-          +
-        </AppText>
-      </View>
+      {({ pressed }) => (
+        <View
+          style={[
+            styles.circle,
+            { backgroundColor: theme.colors.primary },
+            theme.shadows.md,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Icon name="add" size="lg" color="onPrimary" />
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -30,10 +40,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   circle: {
-    width: 44,
-    height: 44,
+    width: layout.minTouchTarget,
+    height: layout.minTouchTarget,
     borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pressed: {
+    opacity: PRESSED_OPACITY,
   },
 });

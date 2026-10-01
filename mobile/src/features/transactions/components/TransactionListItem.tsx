@@ -1,16 +1,11 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { AppText } from '../../../shared/components';
+import { IconBadge } from '../../../shared/icons';
 import { formatLocalDate } from '../../../shared/lib/dates';
 import { formatMoney } from '../../../shared/lib/money';
-import { spacing, useAppTheme, type ColorName } from '../../../shared/theme';
-import type { Transaction, TransactionType } from '../domain/types';
-
-const AMOUNT_STYLE: Record<TransactionType, { sign: string; color: ColorName }> =
-  {
-    income: { sign: '+', color: 'income' },
-    expense: { sign: '−', color: 'expense' },
-    transfer: { sign: '', color: 'textSecondary' },
-  };
+import { layout, spacing, useAppTheme } from '../../../shared/theme';
+import type { Transaction } from '../domain/types';
+import { TRANSACTION_TYPE_VISUALS } from './transactionTypeVisuals';
 
 type TransactionListItemProps = {
   transaction: Transaction;
@@ -22,7 +17,7 @@ export function TransactionListItem({
   onPress,
 }: TransactionListItemProps) {
   const theme = useAppTheme();
-  const amountStyle = AMOUNT_STYLE[transaction.type];
+  const visual = TRANSACTION_TYPE_VISUALS[transaction.type];
 
   return (
     <Pressable
@@ -33,14 +28,20 @@ export function TransactionListItem({
         { borderBottomColor: theme.colors.border, opacity: pressed ? 0.6 : 1 },
       ]}
     >
+      {/* The row is one accessible button, so the badge label joins its announcement. */}
+      <IconBadge
+        name={visual.icon}
+        variant={visual.tone}
+        accessibilityLabel={visual.label}
+      />
       <View style={styles.info}>
         <AppText variant="bodyStrong">{transaction.description}</AppText>
         <AppText variant="caption" color="textSecondary">
           {formatLocalDate(transaction.localDate)}
         </AppText>
       </View>
-      <AppText variant="bodyStrong" color={amountStyle.color}>
-        {amountStyle.sign}
+      <AppText variant="amount" color={visual.amountColor}>
+        {visual.sign}
         {formatMoney(transaction.amountMinor, transaction.currency)}
       </AppText>
     </Pressable>
@@ -52,7 +53,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: spacing.md,
+    gap: layout.listItemGap,
     paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },

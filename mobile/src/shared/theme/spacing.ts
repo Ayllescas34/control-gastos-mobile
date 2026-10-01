@@ -16,6 +16,8 @@ export const layout = {
   cardPadding: 20,
   sectionGap: 24,
   listItemGap: 12,
+  /** Minimum touch target (Material 48dp), independent of the visible size. */
+  minTouchTarget: 48,
 } as const;
 
 export const radius = {

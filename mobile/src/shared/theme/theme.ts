@@ -5,6 +5,7 @@ import {
   lightPrimaryGradient,
   type ColorPalette,
 } from './colors';
+import { iconSize, iconStrokeWidth } from './iconography';
 import { darkShadows, lightShadows, type Shadows } from './shadows';
 import { layout, radius, spacing } from './spacing';
 import { typography } from './typography';
@@ -19,6 +20,8 @@ export type AppTheme = {
   layout: typeof layout;
   radius: typeof radius;
   typography: typeof typography;
+  iconSize: typeof iconSize;
+  iconStrokeWidth: number;
 };
 
 export const lightTheme: AppTheme = {
@@ -30,6 +33,8 @@ export const lightTheme: AppTheme = {
   layout,
   radius,
   typography,
+  iconSize,
+  iconStrokeWidth,
 };
 
 export const darkTheme: AppTheme = {
@@ -41,4 +46,6 @@ export const darkTheme: AppTheme = {
   layout,
   radius,
   typography,
+  iconSize,
+  iconStrokeWidth,
 };
