@@ -94,5 +94,18 @@ Todavía no se valida en código que la moneda coincida con la de la cuenta (reg
 
 Estos puntos **no están decididos**:
 
-- **PENDIENTE:** si una transacción con `status = 'pending'` afecta el saldo.
-- **PENDIENTE:** si la combinación `source` + `externalRef` debe ser única (para evitar duplicados en importaciones).
+- **PENDIENTE:** si una transacción con `status = 'pending'` afecta el saldo. Mientras no se decida, `getAccountBalance` incluye todas las transacciones no borradas, sin filtrar por `status`.
+- **PENDIENTE:** si la combinación `source` + `externalRef` debe ser única (para evitar duplicados en importaciones). Por ahora no existe `UNIQUE(source, external_ref)`; se agregará con una migración en la etapa de importación/integración.
+
+## Persistencia local
+
+SQLite en el dispositivo (`mobile/src/core/db/`). El schema Drizzle está en `core/db/schema/` y la migración inicial en `core/db/migrations/`.
+
+- **IDs:** `TEXT PRIMARY KEY` con UUID v4 generado por la app (sin AUTOINCREMENT). Hermes no expone `crypto` en este proyecto (verificado en el emulador), así que los 16 bytes aleatorios salen de `randomblob()` de SQLite (`core/db/ids.ts`), sin dependencias nuevas.
+- **Fechas:** `TEXT`. Instantes en ISO UTC `YYYY-MM-DDTHH:mm:ss.sssZ`; `local_date` como `YYYY-MM-DD`. Validados con `CHECK ... GLOB`.
+- **Dinero:** `INTEGER`. `CHECK(typeof(...) = 'integer')` rechaza REAL, con límite `abs <= 2^53 - 1` para que JS lo represente exactamente. `amount_minor > 0`.
+- **Reglas en la base de datos (segunda barrera):** tipos/source/status/network permitidos, moneda de 3 letras, `last4` de 4 dígitos y reglas de transferencia (reglas 8 y 9) como `CHECK`. La regla 13 (tarjeta de la misma cuenta) con `UNIQUE(cards.id, cards.account_id)` y la FK compuesta `transactions(card_id, account_id) → cards(id, account_id)`. Todas las FK usan `ON DELETE RESTRICT`.
+- **`category_id`:** `TEXT NULL` sin FK hasta que exista la tabla `categories`.
+- **Borrado lógico:** los repositories solo hacen `UPDATE deleted_at`; las lecturas normales filtran `deleted_at IS NULL`. Los índices de `transactions` son parciales sobre filas no borradas.
+- **Saldo:** se calcula con SQL (`getAccountBalance`), no se almacena.
+- **Migraciones:** runner propio (`core/db/migrate.ts`) que aplica cada migración en su propia transacción y la registra en `schema_migrations`. Si una migración desactiva foreign keys, se desactivan antes de `BEGIN`, se ejecuta `PRAGMA foreign_key_check` antes de `COMMIT` y se reactivan al terminar.

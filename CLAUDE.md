@@ -171,7 +171,18 @@ La aplicación móvil ya tiene una base de arquitectura sobre la plantilla ofici
 
 - Organización por features en `mobile/src/`: `app/` (navegación y providers), `core/` (configuración), `features/` (una carpeta por funcionalidad, con `domain/`, `components/`, `screens/` y un `index.ts` público) y `shared/` (componentes, tema y utilidades de dinero y fechas).
 - Navegación con React Navigation: tabs principales, detalle de movimiento y modal de nuevo movimiento.
-- Las pantallas usan datos de demostración (`demo/`); todavía no hay persistencia.
+- Las pantallas usan datos de demostración (`demo/`); todavía no consumen la base de datos.
 - Modelo de dominio de `Account`, `Card` y `Transaction` con validación pura de transacciones. Las reglas están en `docs/domain-model.md`.
+- Persistencia local SQLite en `mobile/src/core/db/` (tablas `accounts`, `cards`, `transactions`) con repositories en `features/*/data/`. Detalles en `docs/domain-model.md` (sección Persistencia local).
 
-Todavía no existen persistencia local, manejo de estado global, formularios funcionales ni backend.
+Todavía no existen manejo de estado global, formularios funcionales ni backend.
+
+## Persistencia local
+
+- Stack aprobado: `@op-engineering/op-sqlite` + `drizzle-orm/sqlite-proxy` + `drizzle-kit` (migraciones). No usar `drizzle-orm/op-sqlite` (incompatible con op-sqlite >= 17 y sus transacciones no esperan callbacks async). No usar Expo ni `expo-sqlite`; `driver: 'expo'` en `drizzle.config.ts` solo define el formato de `migrations.js`.
+- El dominio (`features/*/domain`) no importa `drizzle-orm` ni `op-sqlite`. Drizzle solo aparece en `core/db` y `features/*/data`. Los repositories devuelven entidades de dominio mediante mappers.
+- Todo cambio de schema requiere una migración generada con `npm run db:generate`. Las migraciones ya integradas no se editan.
+- Las foreign keys deben estar activas (`PRAGMA foreign_keys = ON`, verificado en `prepareDatabase`).
+- Dinero siempre como INTEGER en unidades menores. Nunca REAL ni decimales.
+- Atomicidad con `database.withTransaction`, no con `db.transaction()` de Drizzle.
+- Los tests de base de datos usan SQLite real (`node:sqlite`, `createTestDatabase`); no se mockea SQL.

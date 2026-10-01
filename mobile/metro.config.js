@@ -6,6 +6,13 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
  *
  * @type {import('@react-native/metro-config').MetroConfig}
  */
-const config = {};
+const defaultConfig = getDefaultConfig(__dirname);
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+const config = {
+  resolver: {
+    // Drizzle migrations (src/core/db/migrations) import .sql files, inlined by Babel.
+    sourceExts: [...defaultConfig.resolver.sourceExts, 'sql'],
+  },
+};
+
+module.exports = mergeConfig(defaultConfig, config);

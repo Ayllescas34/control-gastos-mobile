@@ -15,3 +15,10 @@ export { DEMO_TRANSACTIONS } from './demo/demoTransactions';
 export { TransactionsScreen } from './screens/TransactionsScreen';
 export { TransactionDetailScreen } from './screens/TransactionDetailScreen';
 export { NewTransactionScreen } from './screens/NewTransactionScreen';
+export {
+  createTransactionRepository,
+  InvalidTransactionError,
+  type NewTransaction,
+  type TransactionChanges,
+  type TransactionRepository,
+} from './data/transactionRepository';
