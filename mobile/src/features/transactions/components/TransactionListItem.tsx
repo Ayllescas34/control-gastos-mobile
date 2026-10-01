@@ -9,7 +9,7 @@ const AMOUNT_STYLE: Record<TransactionType, { sign: string; color: ColorName }> 
   {
     income: { sign: '+', color: 'income' },
     expense: { sign: '−', color: 'expense' },
-    transfer: { sign: '', color: 'textMuted' },
+    transfer: { sign: '', color: 'textSecondary' },
   };
 
 type TransactionListItemProps = {
@@ -35,7 +35,7 @@ export function TransactionListItem({
     >
       <View style={styles.info}>
         <AppText variant="bodyStrong">{transaction.description}</AppText>
-        <AppText variant="caption" color="textMuted">
+        <AppText variant="caption" color="textSecondary">
           {formatLocalDate(transaction.localDate)}
         </AppText>
       </View>

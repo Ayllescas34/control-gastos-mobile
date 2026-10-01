@@ -8,7 +8,7 @@ type AppTextProps = TextProps & {
 
 export function AppText({
   variant = 'body',
-  color = 'text',
+  color = 'textPrimary',
   style,
   ...rest
 }: AppTextProps) {

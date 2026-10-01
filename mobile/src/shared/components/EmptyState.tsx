@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { spacing, useAppTheme } from '../theme';
+import { layout, spacing, useAppTheme } from '../theme';
 import { AppText } from './AppText';
 
 type EmptyStateProps = {
@@ -19,7 +19,7 @@ export function EmptyState({ title, message, children }: EmptyStateProps) {
       <AppText variant="title" style={styles.centered}>
         {title}
       </AppText>
-      <AppText color="textMuted" style={styles.centered}>
+      <AppText color="textSecondary" style={styles.centered}>
         {message}
       </AppText>
       {children}
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.md,
-    padding: spacing.xl,
+    padding: layout.screenPadding,
   },
   centered: {
     textAlign: 'center',

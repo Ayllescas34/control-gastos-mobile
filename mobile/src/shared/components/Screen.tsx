@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { spacing, useAppTheme } from '../theme';
+import { layout, useAppTheme } from '../theme';
 
 type ScreenProps = {
   children: ReactNode;
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: spacing.lg,
-    gap: spacing.lg,
+    padding: layout.screenPadding,
+    gap: layout.sectionGap,
   },
 });

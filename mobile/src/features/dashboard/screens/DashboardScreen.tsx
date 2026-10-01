@@ -26,17 +26,17 @@ export function DashboardScreen() {
       <DemoBadge />
 
       <Card>
-        <AppText variant="caption" color="textMuted">
+        <AppText variant="caption" color="textSecondary">
           Balance · {DEMO_SUMMARY.periodLabel}
         </AppText>
-        <AppText variant="display">
+        <AppText variant="amountHero">
           {formatMoney(DEMO_SUMMARY.balanceMinor, currency)}
         </AppText>
       </Card>
 
       <View style={styles.row}>
         <Card style={styles.half}>
-          <AppText variant="caption" color="textMuted">
+          <AppText variant="caption" color="textSecondary">
             Ingresos
           </AppText>
           <AppText variant="heading" color="income">
@@ -44,7 +44,7 @@ export function DashboardScreen() {
           </AppText>
         </Card>
         <Card style={styles.half}>
-          <AppText variant="caption" color="textMuted">
+          <AppText variant="caption" color="textSecondary">
             Gastos
           </AppText>
           <AppText variant="heading" color="expense">

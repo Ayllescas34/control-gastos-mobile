@@ -38,7 +38,7 @@ export function Button({ title, onPress, variant = 'primary' }: ButtonProps) {
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
-    borderRadius: radius.md,
+    borderRadius: radius.button,
     borderWidth: 1,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,

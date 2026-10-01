@@ -38,11 +38,11 @@ export function TransactionDetailScreen({ route }: Props) {
     <Screen>
       <DemoBadge />
       <Card>
-        <AppText variant="caption" color="textMuted">
+        <AppText variant="caption" color="textSecondary">
           {TYPE_LABEL[transaction.type]}
         </AppText>
         <AppText variant="title">{transaction.description}</AppText>
-        <AppText variant="display">
+        <AppText variant="amountHero">
           {formatMoney(transaction.amountMinor, transaction.currency)}
         </AppText>
       </Card>
@@ -62,7 +62,7 @@ export function TransactionDetailScreen({ route }: Props) {
 function DetailRow({ label, value }: { label: string; value: string | null }) {
   return (
     <View style={styles.detailRow}>
-      <AppText color="textMuted">{label}</AppText>
+      <AppText color="textSecondary">{label}</AppText>
       <AppText variant="bodyStrong">{value ?? '—'}</AppText>
     </View>
   );
