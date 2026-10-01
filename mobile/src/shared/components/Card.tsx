@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { radius, spacing, useAppTheme } from '../theme';
+import { layout, radius, spacing, useAppTheme } from '../theme';
 
 type CardProps = {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
 };
 
+/** Surface for grouped content: soft shadow in light mode, surface contrast in dark mode. */
 export function Card({ children, style }: CardProps) {
   const theme = useAppTheme();
 
@@ -14,10 +15,8 @@ export function Card({ children, style }: CardProps) {
     <View
       style={[
         styles.card,
-        {
-          backgroundColor: theme.colors.surface,
-          borderColor: theme.colors.border,
-        },
+        { backgroundColor: theme.colors.surface },
+        theme.shadows.sm,
         style,
       ]}
     >
@@ -28,9 +27,8 @@ export function Card({ children, style }: CardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: spacing.lg,
+    borderRadius: radius.card,
+    padding: layout.cardPadding,
     gap: spacing.xs,
   },
 });

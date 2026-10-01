@@ -25,7 +25,7 @@ function toNavigationTheme(theme: AppTheme): Theme {
       primary: theme.colors.primary,
       background: theme.colors.background,
       card: theme.colors.surface,
-      text: theme.colors.text,
+      text: theme.colors.textPrimary,
       border: theme.colors.border,
       notification: theme.colors.expense,
     },
