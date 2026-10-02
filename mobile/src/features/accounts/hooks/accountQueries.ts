@@ -1,33 +1,27 @@
-import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import type { EntityId } from '../../../shared/domain';
-import { useAsyncResource } from '../../../shared/hooks';
+import type { MinorUnits } from '../../../shared/lib/money';
+import { useAsyncResource, useReloadOnFocus } from '../../../shared/hooks';
 import type { Account, Card } from '../domain/types';
 import { useAccountRepositories } from './useAccountRepositories';
-
-/** Reloads whenever the screen gains focus: after creating, editing or archiving elsewhere. */
-function useReloadOnFocus(reload: () => void): void {
-  useFocusEffect(
-    useCallback(() => {
-      reload();
-    }, [reload]),
-  );
-}
 
 export type AccountsOverview = {
   accounts: Account[];
   cards: Card[];
+  /** Current balance of each active account (initial balance plus its movements). */
+  balances: Record<EntityId, MinorUnits>;
 };
 
-/** Active accounts and active cards, read from SQLite. */
+/** Active accounts, active cards and current balances (one query each), from SQLite. */
 export function useAccountsOverview() {
   const repositories = useAccountRepositories();
   const load = useCallback(async (): Promise<AccountsOverview> => {
-    const [accounts, cards] = await Promise.all([
+    const [accounts, cards, balances] = await Promise.all([
       repositories.accounts.list(),
       repositories.cards.list(),
+      repositories.transactions.listAccountBalances(),
     ]);
-    return { accounts, cards };
+    return { accounts, cards, balances };
   }, [repositories]);
 
   const { resource, reload } = useAsyncResource(load);
@@ -38,6 +32,8 @@ export function useAccountsOverview() {
 export type AccountDetail = {
   account: Account;
   cards: Card[];
+  /** Initial balance plus the account's movements. */
+  balanceMinor: MinorUnits;
 } | null;
 
 /** One active account with its active cards; null when it does not exist or is archived. */
@@ -48,9 +44,14 @@ export function useAccountDetail(accountId: EntityId) {
     if (!account) {
       return null;
     }
+    const [cards, balanceMinor] = await Promise.all([
+      repositories.cards.listByAccount(accountId),
+      repositories.transactions.getAccountBalance(accountId),
+    ]);
     return {
       account,
-      cards: await repositories.cards.listByAccount(accountId),
+      cards,
+      balanceMinor: balanceMinor ?? account.initialBalanceMinor,
     };
   }, [repositories, accountId]);
 

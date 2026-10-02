@@ -1,64 +1,41 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { AppText } from '../../../shared/components';
+import { memo } from 'react';
+import { AppText, ListItem } from '../../../shared/components';
 import { IconBadge } from '../../../shared/icons';
-import { formatLocalDate } from '../../../shared/lib/dates';
-import { formatMoney } from '../../../shared/lib/money';
-import { layout, spacing, useAppTheme } from '../../../shared/theme';
 import type { Transaction } from '../domain/types';
-import { TRANSACTION_TYPE_VISUALS } from './transactionTypeVisuals';
+import type { ReferenceLookup } from './referenceLookup';
+import { describeTransaction } from './transactionPresentation';
 
 type TransactionListItemProps = {
   transaction: Transaction;
+  references: ReferenceLookup;
   onPress: (id: string) => void;
+  /** Off in lists already grouped by day, where the date is the section header. */
+  showDate?: boolean;
 };
 
-export function TransactionListItem({
+/** A movement in a list: category/type icon, title, accounts and date, signed amount. */
+export const TransactionListItem = memo(function TransactionListItemView({
   transaction,
+  references,
   onPress,
+  showDate = true,
 }: TransactionListItemProps) {
-  const theme = useAppTheme();
-  const visual = TRANSACTION_TYPE_VISUALS[transaction.type];
+  const view = describeTransaction(transaction, references);
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={() => onPress(transaction.id)}
-      style={({ pressed }) => [
-        styles.row,
-        { borderBottomColor: theme.colors.border, opacity: pressed ? 0.6 : 1 },
-      ]}
-    >
-      {/* The row is one accessible button, so the badge label joins its announcement. */}
-      <IconBadge
-        name={visual.icon}
-        variant={visual.tone}
-        accessibilityLabel={visual.label}
-      />
-      <View style={styles.info}>
-        <AppText variant="bodyStrong">{transaction.description}</AppText>
-        <AppText variant="caption" color="textSecondary">
-          {formatLocalDate(transaction.localDate)}
+    <ListItem
+      testID={`transaction-${transaction.id}`}
+      title={view.title}
+      subtitle={showDate ? `${view.context} · ${view.date}` : view.context}
+      leading={<IconBadge name={view.icon} variant={view.tone} />}
+      trailing={
+        <AppText variant="amount" color={view.amountColor}>
+          {view.amount}
         </AppText>
-      </View>
-      <AppText variant="amount" color={visual.amountColor}>
-        {visual.sign}
-        {formatMoney(transaction.amountMinor, transaction.currency)}
-      </AppText>
-    </Pressable>
+      }
+      onPress={() => onPress(transaction.id)}
+      accessibilityLabel={view.accessibilityLabel}
+      accessibilityHint="Abre el detalle del movimiento"
+    />
   );
-}
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: layout.listItemGap,
-    paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  info: {
-    flex: 1,
-    gap: 2,
-  },
 });

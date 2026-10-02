@@ -171,9 +171,9 @@ La aplicación móvil ya tiene una base de arquitectura sobre la plantilla ofici
 
 - Organización por features en `mobile/src/`: `app/` (navegación y providers), `core/` (configuración), `features/` (una carpeta por funcionalidad, con `domain/`, `components/`, `screens/` y un `index.ts` público) y `shared/` (componentes, tema y utilidades de dinero y fechas).
 - Navegación con React Navigation: tabs principales, detalle de movimiento y modal de nuevo movimiento.
-- Inicio y Movimientos usan datos de demostración (`demo/`). La gestión de cuentas y tarjetas (Configuración → Cuentas) usa datos reales de SQLite; ver `docs/accounts-management.md`.
+- Movimientos, cuentas y tarjetas (Configuración → Cuentas) y categorías (Configuración → Categorías) usan datos reales de SQLite; ver `docs/transactions-management.md`, `docs/accounts-management.md` y `docs/categories-management.md`. Solo el resumen del Inicio sigue siendo demo (`dashboard/demo/`).
 - Modelo de dominio de `Account`, `Card` y `Transaction` con validación pura de transacciones. Las reglas están en `docs/domain-model.md`.
-- Persistencia local SQLite en `mobile/src/core/db/` (tablas `accounts`, `cards`, `transactions`) con repositories en `features/*/data/`. Detalles en `docs/domain-model.md` (sección Persistencia local).
+- Persistencia local SQLite en `mobile/src/core/db/` (tablas `accounts`, `cards`, `categories`, `transactions`) con repositories en `features/*/data/`. Detalles en `docs/domain-model.md` (sección Persistencia local).
 
 Todavía no existen manejo de estado global, formularios funcionales ni backend.
 

@@ -14,8 +14,12 @@ import {
   CardFormScreen,
 } from '../../features/accounts';
 import {
-  NewTransactionScreen,
+  CategoriesScreen,
+  CategoryFormScreen,
+} from '../../features/categories';
+import {
   TransactionDetailScreen,
+  TransactionFormScreen,
 } from '../../features/transactions';
 import { useAppTheme, type AppTheme } from '../../shared/theme';
 import { MainTabs } from './MainTabs';
@@ -55,9 +59,10 @@ export function RootStack() {
       />
       <Stack.Screen
         name="NewTransaction"
-        component={NewTransactionScreen}
+        component={TransactionFormScreen}
         options={{ title: 'Nuevo movimiento', presentation: 'modal' }}
       />
+      <Stack.Screen name="EditTransaction" component={TransactionFormScreen} />
       {/* Accounts management, reached from Settings. Form titles are set per mode. */}
       <Stack.Screen
         name="Accounts"
@@ -76,6 +81,13 @@ export function RootStack() {
         options={{ title: 'Detalle de la tarjeta' }}
       />
       <Stack.Screen name="CardForm" component={CardFormScreen} />
+      {/* Categories management, reached from Settings. */}
+      <Stack.Screen
+        name="Categories"
+        component={CategoriesScreen}
+        options={{ title: 'Categorías' }}
+      />
+      <Stack.Screen name="CategoryForm" component={CategoryFormScreen} />
     </Stack.Navigator>
   );
 }

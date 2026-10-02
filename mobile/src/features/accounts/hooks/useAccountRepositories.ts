@@ -8,10 +8,17 @@ import {
   createCardRepository,
   type CardRepository,
 } from '../data/cardRepository';
+// By module, not the transactions feature index, to keep features free of import cycles.
+import {
+  createTransactionRepository,
+  type TransactionRepository,
+} from '../../transactions/data/transactionRepository';
 
 export type AccountRepositories = {
   accounts: AccountRepository;
   cards: CardRepository;
+  /** Balances are derived from movements, so they come from the transactions repository. */
+  transactions: TransactionRepository;
 };
 
 /**
@@ -24,6 +31,7 @@ export function useAccountRepositories(): AccountRepositories {
     () => ({
       accounts: createAccountRepository(db),
       cards: createCardRepository(db),
+      transactions: createTransactionRepository(db),
     }),
     [db],
   );

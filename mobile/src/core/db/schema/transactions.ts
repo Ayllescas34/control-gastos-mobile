@@ -9,6 +9,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { accounts } from './accounts';
 import { cards } from './cards';
+import { categories } from './categories';
 import {
   isCurrencyCode,
   isIsoDateTime,
@@ -30,7 +31,6 @@ export const TRANSACTION_STATUSES = ['confirmed', 'pending'] as const;
 
 /**
  * A transfer is a single row: account_id (origin) → to_account_id (destination).
- * category_id has no FK yet: the categories table arrives with its domain.
  * UNIQUE(source, external_ref) is intentionally deferred to the import/integration stage.
  */
 export const transactions = sqliteTable(
@@ -46,7 +46,9 @@ export const transactions = sqliteTable(
     toAccountId: text('to_account_id').references(() => accounts.id, {
       onDelete: 'restrict',
     }),
-    categoryId: text('category_id'),
+    categoryId: text('category_id').references(() => categories.id, {
+      onDelete: 'restrict',
+    }),
     cardId: text('card_id'),
     occurredAt: text('occurred_at').notNull(),
     localDate: text('local_date').notNull(),

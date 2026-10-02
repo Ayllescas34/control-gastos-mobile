@@ -45,7 +45,7 @@ export function AccountsScreen({ navigation }: Props) {
     );
   }
 
-  const { accounts, cards } = resource.data;
+  const { accounts, cards, balances } = resource.data;
   if (accounts.length === 0) {
     return (
       <EmptyState
@@ -80,6 +80,7 @@ export function AccountsScreen({ navigation }: Props) {
           <AccountListItem
             key={account.id}
             account={account}
+            balanceMinor={balances[account.id] ?? account.initialBalanceMinor}
             onPress={openAccount}
           />
         ))}

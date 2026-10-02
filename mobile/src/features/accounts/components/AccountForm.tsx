@@ -8,15 +8,16 @@ import {
   TextField,
 } from '../../../shared/components';
 import type { CurrencyCode } from '../../../shared/lib/money';
+import { useFormSubmission } from '../../../shared/hooks';
 import { spacing } from '../../../shared/theme';
 import type { NewAccount } from '../data/accountRepository';
 import { ACCOUNT_NAME_MAX_LENGTH } from '../domain/validateAccount';
-import { useFormSubmission } from '../hooks/useFormSubmission';
 import {
   parseAccountForm,
   type AccountFormErrors,
   type AccountFormValues,
 } from './accountFormModel';
+import { describeAccountsError } from './accountMessages';
 import { ACCOUNT_TYPE_OPTIONS } from './accountVisuals';
 
 type AccountFormProps = {
@@ -39,7 +40,9 @@ export function AccountForm({
 }: AccountFormProps) {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<AccountFormErrors>({});
-  const { submitting, submitError, submit } = useFormSubmission();
+  const { submitting, submitError, submit } = useFormSubmission(
+    describeAccountsError,
+  );
 
   function update<K extends keyof AccountFormValues>(
     field: K,

@@ -10,6 +10,7 @@ Los tipos viven en:
 - `mobile/src/features/transactions/domain/types.ts`: `Transaction`, `TransactionType`, `TransactionSource`, `TransactionStatus`.
 - `mobile/src/features/transactions/domain/validateTransaction.ts`: validación de invariantes de `Transaction`.
 - `mobile/src/features/accounts/domain/validateAccount.ts` y `validateCard.ts`: validación de `Account` y `Card`.
+- `mobile/src/features/categories/domain/types.ts` y `validateCategory.ts`: `Category` y su validación.
 
 ## Entidades y relaciones
 
@@ -18,7 +19,7 @@ Account 1 ──── 0..n Card          card.accountId → account.id
 Account 1 ──── 0..n Transaction   transaction.accountId (cuenta afectada / origen)
 Account 1 ──── 0..n Transaction   transaction.toAccountId (destino, solo en transfer)
 Card    1 ──── 0..n Transaction   transaction.cardId (plástico usado, opcional)
-Category         0..1 por Transaction   transaction.categoryId (entidad pendiente)
+Category 1 ──── 0..n Transaction   transaction.categoryId (opcional; solo income/expense)
 ```
 
 Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
@@ -66,6 +67,14 @@ Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
 15. El pago no genera un segundo `expense`. El gasto ya quedó registrado en cada compra.
 16. El saldo de una cuenta `credit_card` es negativo cuando hay deuda. Una compra lo hace más negativo y un pago lo acerca a 0.
 
+## Categorías
+
+26. Una categoría es de gastos (`expense`) o de ingresos (`income`) y su tipo no cambia.
+27. El nombre es único por tipo entre categorías activas (sin distinguir mayúsculas, acentos ni espacios).
+28. Archivar una categoría no modifica los movimientos que la usan.
+
+Detalles en `docs/categories-management.md`.
+
 ## Datos sensibles
 
 17. Nunca se almacenan el número completo de tarjeta, el CVV, el PIN ni la fecha de vencimiento.
@@ -89,11 +98,11 @@ Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
 `validateTransaction(transaction, context)` es una función pura que devuelve `{ valid, errors }` con todas las reglas incumplidas. Separa dos grupos:
 
 - `validateTransactionFields`: reglas que solo necesitan la transacción (monto; `toAccountId`, `categoryId` y `cardId` según el tipo).
-- `validateTransactionRelations`: reglas que necesitan otras entidades, que el llamador pasa en `context`. Hoy: que la tarjeta pertenezca a `accountId`.
+- `validateTransactionRelations`: reglas que necesitan otras entidades, que el llamador pasa en `context` (cuentas, tarjetas y categorías utilizables): las cuentas existen y comparten la moneda del movimiento (reglas 6 y 10), la tarjeta pertenece a `accountId` (regla 13) y la categoría es del mismo tipo que el movimiento.
 
 `validateAccount(account)` y `validateCard(card, context)` siguen el mismo contrato. Los repositorios de cuentas y tarjetas las ejecutan antes de escribir. Detalles en `docs/accounts-management.md`.
 
-Todavía no se valida en código que la moneda coincida con la de la cuenta (reglas 6 y 10), porque requiere recibir las cuentas.
+Detalles de movimientos, filtros y saldos en `docs/transactions-management.md`.
 
 ## Decisiones pendientes
 
