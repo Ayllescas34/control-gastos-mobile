@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { IconBadge, type IconName } from '../icons';
+import { IconBadge, type IconName, type IconTone } from '../icons';
 import { layout, spacing, useAppTheme } from '../theme';
 import { AppText } from './AppText';
 
 type EmptyStateProps = {
   /** Optional illustration; decorative, the title carries the meaning. */
   icon?: IconName;
+  /** Color role of the illustration. Defaults to `primary`. */
+  tone?: IconTone;
   title: string;
   message: string;
   children?: ReactNode;
@@ -14,6 +16,7 @@ type EmptyStateProps = {
 
 export function EmptyState({
   icon,
+  tone = 'primary',
   title,
   message,
   children,
@@ -24,8 +27,12 @@ export function EmptyState({
     <View
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
-      {icon && <IconBadge name={icon} variant="primary" size="lg" />}
-      <AppText variant="title" style={styles.centered}>
+      {icon && <IconBadge name={icon} variant={tone} size="lg" />}
+      <AppText
+        variant="title"
+        style={styles.centered}
+        accessibilityRole="header"
+      >
         {title}
       </AppText>
       <AppText color="textSecondary" style={styles.centered}>

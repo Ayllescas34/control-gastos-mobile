@@ -13,6 +13,13 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   TransactionDetail: { transactionId: string };
   NewTransaction: undefined;
+  Accounts: undefined;
+  AccountDetail: { accountId: string };
+  /** Without accountId: create. With it: edit that account. */
+  AccountForm: { accountId?: string } | undefined;
+  CardDetail: { cardId: string };
+  /** cardId: edit that card. accountId (create only): preselects the account. */
+  CardForm: { cardId?: string; accountId?: string } | undefined;
 };
 
 declare global {

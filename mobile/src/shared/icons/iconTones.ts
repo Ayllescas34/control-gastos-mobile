@@ -14,6 +14,7 @@ const TONE_FOREGROUND: Record<IconTone, ColorName> = {
   transfer: 'transfer',
   neutral: 'textSecondary',
   warning: 'warning',
+  error: 'error',
 };
 
 /** Tint strength over the surface. Dark surfaces need a stronger tint to read. */

@@ -20,6 +20,8 @@ export function Screen({ children, scrollable = true }: ScreenProps) {
     <ScrollView
       style={[styles.fill, background]}
       contentContainerStyle={styles.content}
+      // A tap on a button while the keyboard is open triggers it on the first tap.
+      keyboardShouldPersistTaps="handled"
     >
       {children}
     </ScrollView>

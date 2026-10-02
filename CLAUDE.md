@@ -171,7 +171,7 @@ La aplicación móvil ya tiene una base de arquitectura sobre la plantilla ofici
 
 - Organización por features en `mobile/src/`: `app/` (navegación y providers), `core/` (configuración), `features/` (una carpeta por funcionalidad, con `domain/`, `components/`, `screens/` y un `index.ts` público) y `shared/` (componentes, tema y utilidades de dinero y fechas).
 - Navegación con React Navigation: tabs principales, detalle de movimiento y modal de nuevo movimiento.
-- Las pantallas usan datos de demostración (`demo/`); todavía no consumen la base de datos.
+- Inicio y Movimientos usan datos de demostración (`demo/`). La gestión de cuentas y tarjetas (Configuración → Cuentas) usa datos reales de SQLite; ver `docs/accounts-management.md`.
 - Modelo de dominio de `Account`, `Card` y `Transaction` con validación pura de transacciones. Las reglas están en `docs/domain-model.md`.
 - Persistencia local SQLite en `mobile/src/core/db/` (tablas `accounts`, `cards`, `transactions`) con repositories en `features/*/data/`. Detalles en `docs/domain-model.md` (sección Persistencia local).
 
@@ -191,3 +191,5 @@ Todavía no existen manejo de estado global, formularios funcionales ni backend.
 
 - Design System en `mobile/src/shared/theme/`: usar sus tokens (colores, tipografía, spacing, radius, sombras, iconografía); no colores ni tamaños literales en pantallas.
 - Iconos solo mediante `Icon`, `IconBadge` e `IconButton` de `mobile/src/shared/icons/`. Nunca importar `lucide-react-native` fuera de esa carpeta (ESLint lo bloquea). Detalles en `docs/ui-icons.md`.
+- Las pantallas leen y escriben mediante hooks de su feature que usan repositorios (`useDatabase()` de `core/db`); SQLite es la fuente de verdad y las pantallas recargan con `useFocusEffect`. Sin estado global.
+- Montos escritos por el usuario: `parseMoney` (enteros en unidades menores, sin punto flotante).

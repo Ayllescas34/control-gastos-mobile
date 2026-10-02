@@ -1,7 +1,16 @@
 import type { EntityId, Timestamps } from '../../../shared/domain';
 import type { CurrencyCode, MinorUnits } from '../../../shared/lib/money';
 
-export type AccountType = 'cash' | 'bank' | 'savings' | 'credit_card' | 'other';
+/** Runtime list of account types, for validation and selectors. */
+export const ACCOUNT_TYPES = [
+  'cash',
+  'bank',
+  'savings',
+  'credit_card',
+  'other',
+] as const;
+
+export type AccountType = (typeof ACCOUNT_TYPES)[number];
 
 /**
  * The current balance is not stored: it is derived from `initialBalanceMinor`
@@ -16,7 +25,9 @@ export type Account = Timestamps & {
   initialBalanceMinor: MinorUnits;
 };
 
-export type CardNetwork = 'visa' | 'mastercard' | 'amex' | 'other';
+export const CARD_NETWORKS = ['visa', 'mastercard', 'amex', 'other'] as const;
+
+export type CardNetwork = (typeof CARD_NETWORKS)[number];
 
 /**
  * Physical/virtual card linked to an account. Credit vs debit comes from the account type.

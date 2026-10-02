@@ -9,6 +9,7 @@ Los tipos viven en:
 - `mobile/src/features/accounts/domain/types.ts`: `Account`, `AccountType`, `Card`, `CardNetwork`.
 - `mobile/src/features/transactions/domain/types.ts`: `Transaction`, `TransactionType`, `TransactionSource`, `TransactionStatus`.
 - `mobile/src/features/transactions/domain/validateTransaction.ts`: validación de invariantes de `Transaction`.
+- `mobile/src/features/accounts/domain/validateAccount.ts` y `validateCard.ts`: validación de `Account` y `Card`.
 
 ## Entidades y relaciones
 
@@ -80,6 +81,8 @@ Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
 
 22. Un registro con `deletedAt` distinto de `null` está borrado y se excluye de saldos y listados.
 23. Una cuenta con transacciones no se borra físicamente.
+24. Una cuenta con tarjetas activas no se puede archivar: primero se archivan sus tarjetas. Archivar nunca se propaga en cascada.
+25. No se crean tarjetas en una cuenta archivada.
 
 ## Validación
 
@@ -87,6 +90,8 @@ Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
 
 - `validateTransactionFields`: reglas que solo necesitan la transacción (monto; `toAccountId`, `categoryId` y `cardId` según el tipo).
 - `validateTransactionRelations`: reglas que necesitan otras entidades, que el llamador pasa en `context`. Hoy: que la tarjeta pertenezca a `accountId`.
+
+`validateAccount(account)` y `validateCard(card, context)` siguen el mismo contrato. Los repositorios de cuentas y tarjetas las ejecutan antes de escribir. Detalles en `docs/accounts-management.md`.
 
 Todavía no se valida en código que la moneda coincida con la de la cuenta (reglas 6 y 10), porque requiere recibir las cuentas.
 

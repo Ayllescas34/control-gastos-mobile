@@ -15,7 +15,8 @@ export type IconTone =
   | 'expense'
   | 'transfer'
   | 'neutral'
-  | 'warning';
+  | 'warning'
+  | 'error';
 
 /** Container sizes for IconBadge and IconButton. */
 export type IconContainerSize = 'sm' | 'md' | 'lg';
