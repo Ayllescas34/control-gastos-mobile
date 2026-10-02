@@ -14,6 +14,11 @@ import { createTestDatabase } from '../../src/core/db/testing/createTestDatabase
 
 const NOW = '2026-09-30T12:00:00.000Z';
 
+/** Migrations shipped with the app, and the slot a test-only migration takes after them. */
+const SHIPPED_MIGRATIONS = migrations.journal.entries.length;
+const NEXT_IDX = SHIPPED_MIGRATIONS;
+const NEXT_KEY = `m${String(NEXT_IDX).padStart(4, '0')}`;
+
 function accountValues(id: string, initialBalanceMinor = 0) {
   return {
     id,
@@ -142,6 +147,7 @@ describe('initialization and migrations', () => {
     expect(tables.map(([name]) => name)).toEqual([
       'accounts',
       'cards',
+      'categories',
       'schema_migrations',
       'transactions',
     ]);
@@ -149,7 +155,9 @@ describe('initialization and migrations', () => {
     const applied = await database.db.values<[number, string]>(
       sql`SELECT idx, tag FROM schema_migrations`,
     );
-    expect(applied).toEqual([[0, '0000_initial_schema']]);
+    expect(applied).toEqual(
+      migrations.journal.entries.map(entry => [entry.idx, entry.tag]),
+    );
   });
 
   it('creates the expected indexes, partial where intended', async () => {
@@ -160,6 +168,7 @@ describe('initialization and migrations', () => {
     expect(Object.keys(byName)).toEqual([
       'cards_account_id_idx',
       'cards_id_account_id_unique',
+      'categories_kind_name_unique',
       'transactions_account_id_local_date_idx',
       'transactions_card_id_idx',
       'transactions_category_id_local_date_idx',
@@ -179,7 +188,7 @@ describe('initialization and migrations', () => {
     const [[count]] = await database.db.values<[number]>(
       sql`SELECT count(*) FROM schema_migrations`,
     );
-    expect(count).toBe(1);
+    expect(count).toBe(SHIPPED_MIGRATIONS);
   });
 
   it('has foreign keys enabled', async () => {
@@ -194,12 +203,12 @@ describe('initialization and migrations', () => {
       journal: {
         entries: [
           ...migrations.journal.entries,
-          { idx: 1, tag: 'broken' },
+          { idx: NEXT_IDX, tag: 'broken' },
         ],
       },
       migrations: {
         ...migrations.migrations,
-        m0001:
+        [NEXT_KEY]:
           'CREATE TABLE extra (id TEXT PRIMARY KEY);--> statement-breakpoint\nINSERT INTO missing_table VALUES (1);',
       },
     };
@@ -212,7 +221,7 @@ describe('initialization and migrations', () => {
     const [[count]] = await database.db.values<[number]>(
       sql`SELECT count(*) FROM schema_migrations`,
     );
-    expect(count).toBe(1);
+    expect(count).toBe(SHIPPED_MIGRATIONS);
   });
 
   describe('table rebuilds (drizzle-kit PRAGMA foreign_keys=OFF/ON)', () => {
@@ -230,12 +239,12 @@ describe('initialization and migrations', () => {
         journal: {
           entries: [
             ...migrations.journal.entries,
-            { idx: 1, tag: 'rebuild_accounts' },
+            { idx: NEXT_IDX, tag: 'rebuild_accounts' },
           ],
         },
         migrations: {
           ...migrations.migrations,
-          m0001: statements.join('--> statement-breakpoint\n'),
+          [NEXT_KEY]: statements.join('--> statement-breakpoint\n'),
         },
       };
     }
@@ -251,7 +260,9 @@ describe('initialization and migrations', () => {
     it('disables foreign keys before BEGIN and re-enables them after COMMIT', async () => {
       await migrate(
         database,
-        rebuildAccounts('INSERT INTO `__new_accounts` SELECT * FROM `accounts`;'),
+        rebuildAccounts(
+          'INSERT INTO `__new_accounts` SELECT * FROM `accounts`;',
+        ),
       );
 
       expect(await countAccounts(database)).toBe(1);

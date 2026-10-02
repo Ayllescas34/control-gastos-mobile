@@ -14,6 +14,10 @@ import {
   CardFormScreen,
 } from '../../features/accounts';
 import {
+  CategoriesScreen,
+  CategoryFormScreen,
+} from '../../features/categories';
+import {
   NewTransactionScreen,
   TransactionDetailScreen,
 } from '../../features/transactions';
@@ -76,6 +80,13 @@ export function RootStack() {
         options={{ title: 'Detalle de la tarjeta' }}
       />
       <Stack.Screen name="CardForm" component={CardFormScreen} />
+      {/* Categories management, reached from Settings. */}
+      <Stack.Screen
+        name="Categories"
+        component={CategoriesScreen}
+        options={{ title: 'Categorías' }}
+      />
+      <Stack.Screen name="CategoryForm" component={CategoryFormScreen} />
     </Stack.Navigator>
   );
 }

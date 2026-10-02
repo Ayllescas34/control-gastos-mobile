@@ -34,6 +34,7 @@ const EXPECTED_ICON_NAMES: readonly IconName[] = [
   'receipt',
   'chart',
   'calendar',
+  'category',
   // Categories
   'shoppingCart',
   'restaurant',
@@ -43,6 +44,11 @@ const EXPECTED_ICON_NAMES: readonly IconName[] = [
   'entertainment',
   'coffee',
   'shoppingBag',
+  'utilities',
+  'subscription',
+  'travel',
+  'salary',
+  'other',
   // System
   'bell',
   'user',

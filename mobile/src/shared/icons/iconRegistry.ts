@@ -8,6 +8,7 @@ import ArrowRight from 'lucide-react-native/icons/arrow-right';
 import ArrowUp from 'lucide-react-native/icons/arrow-up';
 import Banknote from 'lucide-react-native/icons/banknote';
 import Bell from 'lucide-react-native/icons/bell';
+import Briefcase from 'lucide-react-native/icons/briefcase';
 import Calendar from 'lucide-react-native/icons/calendar';
 import Car from 'lucide-react-native/icons/car';
 import ChartColumn from 'lucide-react-native/icons/chart-column';
@@ -27,15 +28,20 @@ import HeartPulse from 'lucide-react-native/icons/heart-pulse';
 import House from 'lucide-react-native/icons/house';
 import Info from 'lucide-react-native/icons/info';
 import Landmark from 'lucide-react-native/icons/landmark';
+import Lightbulb from 'lucide-react-native/icons/lightbulb';
 import Menu from 'lucide-react-native/icons/menu';
 import Pencil from 'lucide-react-native/icons/pencil';
+import Plane from 'lucide-react-native/icons/plane';
 import Plus from 'lucide-react-native/icons/plus';
 import Receipt from 'lucide-react-native/icons/receipt';
 import ReceiptText from 'lucide-react-native/icons/receipt-text';
+import Repeat from 'lucide-react-native/icons/repeat';
 import Search from 'lucide-react-native/icons/search';
 import Settings from 'lucide-react-native/icons/settings';
+import Shapes from 'lucide-react-native/icons/shapes';
 import ShoppingBag from 'lucide-react-native/icons/shopping-bag';
 import ShoppingCart from 'lucide-react-native/icons/shopping-cart';
+import Tag from 'lucide-react-native/icons/tag';
 import Trash from 'lucide-react-native/icons/trash';
 import TriangleAlert from 'lucide-react-native/icons/triangle-alert';
 import User from 'lucide-react-native/icons/user';
@@ -80,6 +86,7 @@ export const iconRegistry = Object.freeze({
   receipt: Receipt,
   chart: ChartColumn,
   calendar: Calendar,
+  category: Tag,
 
   // Categories (visual only: there is no categories domain yet)
   shoppingCart: ShoppingCart,
@@ -90,6 +97,11 @@ export const iconRegistry = Object.freeze({
   entertainment: Clapperboard,
   coffee: Coffee,
   shoppingBag: ShoppingBag,
+  utilities: Lightbulb,
+  subscription: Repeat,
+  travel: Plane,
+  salary: Briefcase,
+  other: Shapes,
 
   // System
   bell: Bell,

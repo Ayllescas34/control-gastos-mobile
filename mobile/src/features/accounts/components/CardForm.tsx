@@ -7,13 +7,13 @@ import {
   ChoiceGroup,
   TextField,
 } from '../../../shared/components';
+import { useFormSubmission } from '../../../shared/hooks';
 import { spacing } from '../../../shared/theme';
 import type { NewCard } from '../data/cardRepository';
 import { InvalidCardError } from '../domain/accountErrors';
 import type { Account } from '../domain/types';
 import { CARD_ALIAS_MAX_LENGTH } from '../domain/validateCard';
-import { useFormSubmission } from '../hooks/useFormSubmission';
-import { CARD_ERROR_MESSAGES } from './accountMessages';
+import { CARD_ERROR_MESSAGES, describeAccountsError } from './accountMessages';
 import { ACCOUNT_TYPE_VISUALS, CARD_NETWORK_OPTIONS } from './accountVisuals';
 import {
   cardFieldOfError,
@@ -45,7 +45,9 @@ export function CardForm({
 }: CardFormProps) {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState<CardFormErrors>({});
-  const { submitting, submitError, submit } = useFormSubmission();
+  const { submitting, submitError, submit } = useFormSubmission(
+    describeAccountsError,
+  );
 
   function update<K extends keyof CardFormValues>(
     field: K,

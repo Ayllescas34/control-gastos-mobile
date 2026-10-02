@@ -1,23 +1,20 @@
-/// <reference types="node" />
-import { DatabaseSync } from 'node:sqlite';
-import { Alert, type AlertButton } from 'react-native';
 import ReactTestRenderer, {
   type ReactTestRenderer as Renderer,
 } from 'react-test-renderer';
 import type { InitialState } from '@react-navigation/native';
 import { renderRootStack } from '../../src/app/testing/renderRootStack';
-import {
-  createDatabase,
-  prepareDatabase,
-  type Database,
-} from '../../src/core/db';
-import { createNodeSqliteExecutor } from '../../src/core/db/testing/nodeSqliteExecutor';
+import type { Database } from '../../src/core/db';
+import { createGatedTestDatabase } from '../../src/core/db/testing/createGatedTestDatabase';
 import {
   createAccountRepository,
   createCardRepository,
   type Account,
 } from '../../src/features/accounts';
 import { formatMoney } from '../../src/shared/lib/money';
+import {
+  chooseAlertButton,
+  spyOnAlerts,
+} from '../../src/shared/testing/alerts';
 import {
   canPress,
   flushAsync,
@@ -26,29 +23,6 @@ import {
   pressByTestId,
   typeByTestId,
 } from '../../src/shared/testing/testRenderer';
-
-/**
- * A real in-memory SQLite database whose queries can be held back, to observe loading
- * states. `release()` lets every pending and future query run.
- */
-async function createDatabases() {
-  const connection = new DatabaseSync(':memory:');
-  const executor = createNodeSqliteExecutor(connection);
-  const database = await prepareDatabase(createDatabase(executor));
-
-  let release!: () => void;
-  const gate = new Promise<void>(resolve => {
-    release = resolve;
-  });
-  const slow = createDatabase({
-    execute: async (sql, params) => {
-      await gate;
-      return executor.execute(sql, params);
-    },
-    close: async () => {},
-  });
-  return { database, slow, release };
-}
 
 let database: Database;
 let slowDatabase: Database;
@@ -59,9 +33,9 @@ let renderer: Renderer | null;
 beforeEach(async () => {
   ({
     database,
-    slow: slowDatabase,
+    gated: slowDatabase,
     release: releaseQueries,
-  } = await createDatabases());
+  } = await createGatedTestDatabase());
   databaseClosed = false;
   renderer = null;
 });
@@ -106,25 +80,6 @@ function createBank(name = 'Banco Industrial'): Promise<Account> {
     currency: 'GTQ',
     initialBalanceMinor: 1250050,
   });
-}
-
-/** Captures Alert.alert calls; returns the buttons of the last one. */
-function spyOnAlerts() {
-  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-  const lastButtons = (): AlertButton[] =>
-    (alert.mock.calls.at(-1)?.[2] as AlertButton[] | undefined) ?? [];
-  return { alert, lastButtons };
-}
-
-async function choose(buttons: AlertButton[], text: string) {
-  const button = buttons.find(candidate => candidate.text === text);
-  if (!button) {
-    throw new Error(`No "${text}" button`);
-  }
-  await ReactTestRenderer.act(async () => {
-    button.onPress?.();
-  });
-  await flushAsync();
 }
 
 const ACCOUNTS: InitialState = { routes: [{ name: 'Accounts' }] };
@@ -436,7 +391,7 @@ describe('archiving', () => {
     );
     expect(await repositories().cards.getById(card.id)).not.toBeNull();
 
-    await choose(lastButtons(), 'Archivar');
+    await chooseAlertButton(lastButtons(), 'Archivar');
 
     expect(await repositories().cards.list()).toEqual([]);
     // Back on the list, which no longer shows it.
@@ -451,7 +406,7 @@ describe('archiving', () => {
     });
 
     await pressByTestId(view.root, 'card-archive');
-    await choose(lastButtons(), 'Cancelar');
+    await chooseAlertButton(lastButtons(), 'Cancelar');
 
     expect(await repositories().cards.getById(card.id)).not.toBeNull();
   });
@@ -488,7 +443,7 @@ describe('archiving', () => {
       expect.stringContaining('Banco Industrial'),
       expect.any(Array),
     );
-    await choose(lastButtons(), 'Archivar');
+    await chooseAlertButton(lastButtons(), 'Archivar');
 
     expect(await repositories().accounts.list()).toEqual([]);
     expect(hasText(view, 'No tienes cuentas todavía')).toBe(true);
@@ -508,7 +463,7 @@ describe('archiving', () => {
     // The database becomes unavailable before the user confirms.
     databaseClosed = true;
     await database.close();
-    await choose(lastButtons(), 'Archivar');
+    await chooseAlertButton(lastButtons(), 'Archivar');
 
     expect(alert).toHaveBeenLastCalledWith(
       'No se pudo archivar la cuenta',

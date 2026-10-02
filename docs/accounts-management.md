@@ -22,7 +22,7 @@ core/db (Drizzle sqlite-proxy) → op-sqlite → SQLite
 features/accounts/
 ├── domain/      types (ACCOUNT_TYPES, CARD_NETWORKS), validateAccount, validateCard, accountErrors
 ├── data/        repositories y mappers
-├── hooks/       consultas, repositorios y envío de formularios
+├── hooks/       consultas y repositorios
 ├── components/  AccountForm, CardForm, AccountListItem, CardListItem, modelos de formulario, textos e iconos
 └── screens/     Accounts, AccountDetail, AccountForm, CardDetail, CardForm
 ```
@@ -77,7 +77,7 @@ Sin librería de formularios: estado local controlado.
 - `accountFormModel` y `cardFormModel` convierten lo escrito en entradas del dominio y reutilizan `validateAccount`/`validateCardFields`; solo asignan cada error a su campo y mensaje.
 - Selección cerrada con `ChoiceGroup` (tipo de cuenta, red, cuenta): nunca texto libre.
 - Dinero: `parseMoney` (`shared/lib/money`) convierte texto como `12,500.50` en `1250050` con operaciones de texto y enteros, sin punto flotante. "." es decimal y "," agrupa miles (es-GT). Más decimales de los permitidos se rechazan, no se redondean.
-- `useFormSubmission` evita el doble envío, muestra el estado de guardado y presenta los errores (nunca los oculta).
+- `useFormSubmission` (`shared/hooks`) evita el doble envío, muestra el estado de guardado y presenta los errores (nunca los oculta).
 
 ## Componentes compartidos nuevos
 

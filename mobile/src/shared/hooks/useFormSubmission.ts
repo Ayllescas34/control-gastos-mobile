@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { describeAccountsError } from '../components/accountMessages';
 
 /**
  * Runs a form's save at most once at a time. The ref blocks a second tap that arrives
  * before React re-renders the disabled button; `submitting` drives the UI. A failed save
  * is logged and its message kept for the form instead of being swallowed.
+ *
+ * `describeError` turns a failure into user-facing text (each feature knows its errors).
  */
-export function useFormSubmission() {
+export function useFormSubmission(describeError: (error: unknown) => string) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const inFlight = useRef(false);
@@ -37,7 +38,7 @@ export function useFormSubmission() {
         if (!onError?.(error)) {
           console.error('Save failed', error);
           if (mounted.current) {
-            setSubmitError(describeAccountsError(error));
+            setSubmitError(describeError(error));
           }
         }
       } finally {
@@ -47,7 +48,7 @@ export function useFormSubmission() {
         }
       }
     },
-    [],
+    [describeError],
   );
 
   return { submitting, submitError, submit };

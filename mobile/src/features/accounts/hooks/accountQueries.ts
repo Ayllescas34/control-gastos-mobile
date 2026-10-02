@@ -1,18 +1,8 @@
-import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import type { EntityId } from '../../../shared/domain';
-import { useAsyncResource } from '../../../shared/hooks';
+import { useAsyncResource, useReloadOnFocus } from '../../../shared/hooks';
 import type { Account, Card } from '../domain/types';
 import { useAccountRepositories } from './useAccountRepositories';
-
-/** Reloads whenever the screen gains focus: after creating, editing or archiving elsewhere. */
-function useReloadOnFocus(reload: () => void): void {
-  useFocusEffect(
-    useCallback(() => {
-      reload();
-    }, [reload]),
-  );
-}
 
 export type AccountsOverview = {
   accounts: Account[];

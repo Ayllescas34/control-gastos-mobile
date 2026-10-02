@@ -10,6 +10,7 @@ Los tipos viven en:
 - `mobile/src/features/transactions/domain/types.ts`: `Transaction`, `TransactionType`, `TransactionSource`, `TransactionStatus`.
 - `mobile/src/features/transactions/domain/validateTransaction.ts`: validación de invariantes de `Transaction`.
 - `mobile/src/features/accounts/domain/validateAccount.ts` y `validateCard.ts`: validación de `Account` y `Card`.
+- `mobile/src/features/categories/domain/types.ts` y `validateCategory.ts`: `Category` y su validación.
 
 ## Entidades y relaciones
 
@@ -18,7 +19,7 @@ Account 1 ──── 0..n Card          card.accountId → account.id
 Account 1 ──── 0..n Transaction   transaction.accountId (cuenta afectada / origen)
 Account 1 ──── 0..n Transaction   transaction.toAccountId (destino, solo en transfer)
 Card    1 ──── 0..n Transaction   transaction.cardId (plástico usado, opcional)
-Category         0..1 por Transaction   transaction.categoryId (entidad pendiente)
+Category 1 ──── 0..n Transaction   transaction.categoryId (opcional; solo income/expense)
 ```
 
 Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
@@ -65,6 +66,14 @@ Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
 14. El pago de una tarjeta de crédito es un `transfer`: `accountId` es la cuenta bancaria y `toAccountId` es la cuenta `credit_card`.
 15. El pago no genera un segundo `expense`. El gasto ya quedó registrado en cada compra.
 16. El saldo de una cuenta `credit_card` es negativo cuando hay deuda. Una compra lo hace más negativo y un pago lo acerca a 0.
+
+## Categorías
+
+26. Una categoría es de gastos (`expense`) o de ingresos (`income`) y su tipo no cambia.
+27. El nombre es único por tipo entre categorías activas (sin distinguir mayúsculas, acentos ni espacios).
+28. Archivar una categoría no modifica los movimientos que la usan.
+
+Detalles en `docs/categories-management.md`.
 
 ## Datos sensibles
 
