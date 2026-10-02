@@ -103,7 +103,18 @@ export function inputValue(root: ReactTestInstance, testID: string): string {
   return findInteractive(root, testID, 'onChangeText').props.value;
 }
 
-/** Whether `text` is rendered anywhere in the tree. */
+/**
+ * Whether `text` is rendered anywhere in the tree. Joins the string children of each node
+ * (a signed amount may be two fragments) and walks the tree instead of serializing it,
+ * since some host props (e.g. of virtualized lists) are circular.
+ */
 export function hasText(renderer: Renderer, text: string): boolean {
-  return JSON.stringify(renderer.toJSON()).includes(text);
+  return renderer.root
+    .findAll(node => typeof node.type === 'string')
+    .some(node =>
+      node.children
+        .filter((child): child is string => typeof child === 'string')
+        .join('')
+        .includes(text),
+    );
 }

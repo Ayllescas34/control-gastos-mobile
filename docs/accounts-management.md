@@ -33,7 +33,7 @@ Modelo existente sin cambios de schema: `name`, `type` (`cash`, `bank`, `savings
 
 - `validateAccount`: nombre obligatorio (sin espacios sobrantes, máx. 60), tipo del dominio, moneda ISO de 3 letras y saldo inicial entero seguro (puede ser negativo: deuda).
 - La moneda no se puede editar (regla 6 del dominio). Las cuentas nuevas usan `appConfig.defaultCurrency` (GTQ); no hay multimoneda ni conversión.
-- Se muestra el **saldo inicial**. El saldo actual (`transactionRepository.getAccountBalance`) dependerá de movimientos reales, que todavía no se registran desde la app.
+- Se muestra el **saldo actual**: saldo inicial más los movimientos registrados, calculado por `transactionRepository` (`listAccountBalances` en la lista, `getAccountBalance` en el detalle). El saldo inicial queda como dato en el detalle. Ver `docs/transactions-management.md`.
 
 ## Card
 

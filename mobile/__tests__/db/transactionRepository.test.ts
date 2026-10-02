@@ -14,6 +14,10 @@ import {
   type NewTransaction,
   type TransactionRepository,
 } from '../../src/features/transactions';
+import {
+  createCategoryRepository,
+  type Category,
+} from '../../src/features/categories';
 
 const NOW = '2026-09-30T12:00:00.000Z';
 const MAX_SAFE = Number.MAX_SAFE_INTEGER; // 9007199254740991
@@ -452,5 +456,297 @@ describe('atomic writes', () => {
       }),
     ).rejects.toBeInstanceOf(InvalidTransactionError);
     expect(await transactions.list()).toEqual([]);
+  });
+});
+
+const ids = (list: { id: string }[]) => list.map(item => item.id);
+
+async function categoryNamed(name: string): Promise<Category> {
+  const found = (
+    await createCategoryRepository(database.db).list({ includeArchived: true })
+  ).find(category => category.name === name);
+  if (!found) {
+    throw new Error(`No category ${name}`);
+  }
+  return found;
+}
+
+describe('relations validated against stored data', () => {
+  it('accepts an expense with an expense category and an income with an income one', async () => {
+    const groceries = await categoryNamed('Supermercado');
+    const salary = await categoryNamed('Salario');
+
+    await transactions.create(movement({ categoryId: groceries.id }));
+    await transactions.create(
+      movement({ type: 'income', categoryId: salary.id }),
+    );
+    expect(await transactions.list()).toHaveLength(2);
+  });
+
+  it('rejects a category of the other kind', async () => {
+    const salary = await categoryNamed('Salario');
+    await expectInvalid(
+      transactions.create(movement({ type: 'expense', categoryId: salary.id })),
+      'category_kind_mismatch',
+    );
+  });
+
+  it('rejects an unknown or archived category for a new movement', async () => {
+    await expectInvalid(
+      transactions.create(movement({ categoryId: 'missing' })),
+      'category_not_found',
+    );
+    const travel = await categoryNamed('Viajes');
+    await createCategoryRepository(database.db).softDelete(travel.id);
+    await expectInvalid(
+      transactions.create(movement({ categoryId: travel.id })),
+      'category_not_found',
+    );
+  });
+
+  it('keeps an archived category when editing an old movement', async () => {
+    const travel = await categoryNamed('Viajes');
+    const trip = await transactions.create(
+      movement({ categoryId: travel.id, amountMinor: 50000 }),
+    );
+    await createCategoryRepository(database.db).softDelete(travel.id);
+
+    const updated = await transactions.update(trip.id, { note: 'Hotel' });
+    expect(updated).toMatchObject({ categoryId: travel.id, note: 'Hotel' });
+  });
+
+  it('rejects unknown and archived accounts', async () => {
+    await expectInvalid(
+      transactions.create(movement({ accountId: 'missing' })),
+      'account_not_found',
+    );
+    await createAccountRepository(database.db).softDelete(cash.id);
+    await expectInvalid(
+      transactions.create(movement({ accountId: cash.id })),
+      'account_not_found',
+    );
+    await expectInvalid(
+      transactions.create(movement({ type: 'transfer', toAccountId: cash.id })),
+      'to_account_not_found',
+    );
+  });
+
+  it('requires the currency of the account (and of both transfer accounts)', async () => {
+    await expectInvalid(
+      transactions.create(movement({ currency: 'USD' })),
+      'currency_mismatch',
+    );
+    const dollars = await createAccountRepository(database.db).create({
+      name: 'Dólares',
+      type: 'bank',
+      currency: 'USD',
+      initialBalanceMinor: 0,
+    });
+    await expectInvalid(
+      transactions.create(
+        movement({ type: 'transfer', toAccountId: dollars.id }),
+      ),
+      'currency_mismatch',
+    );
+  });
+
+  it('rejects an archived card for a new movement', async () => {
+    await createCardRepository(database.db).softDelete(debit.id);
+    await expectInvalid(
+      transactions.create(movement({ cardId: debit.id })),
+      'card_not_in_account',
+    );
+  });
+
+  it('rejects a date that does not exist', async () => {
+    await expectInvalid(
+      transactions.create(movement({ localDate: '2026-02-30' })),
+      'local_date_invalid',
+    );
+  });
+});
+
+describe('filters and search', () => {
+  async function seed() {
+    const groceries = await categoryNamed('Supermercado');
+    const market = await transactions.create(
+      movement({
+        amountMinor: 45075,
+        payee: 'Supermercado La Torre',
+        categoryId: groceries.id,
+        localDate: '2026-09-05',
+        occurredAt: '2026-09-05T16:00:00.000Z',
+      }),
+    );
+    const salary = await transactions.create(
+      movement({
+        type: 'income',
+        amountMinor: 1250000,
+        description: 'Salario septiembre',
+        localDate: '2026-09-25',
+        occurredAt: '2026-09-25T16:00:00.000Z',
+      }),
+    );
+    const savings = await transactions.create(
+      movement({
+        type: 'transfer',
+        amountMinor: 20000,
+        toAccountId: cash.id,
+        note: 'Para la semana: 100% efectivo',
+        localDate: '2026-10-01',
+        occurredAt: '2026-10-01T16:00:00.000Z',
+      }),
+    );
+    const archived = await transactions.create(
+      movement({ payee: 'Supermercado viejo', localDate: '2026-09-06' }),
+    );
+    await transactions.softDelete(archived.id);
+    return { market, salary, savings, groceriesId: groceries.id };
+  }
+
+  it('filters by type', async () => {
+    const { market, salary, savings } = await seed();
+    expect(ids(await transactions.list({ type: 'expense' }))).toEqual([
+      market.id,
+    ]);
+    expect(ids(await transactions.list({ type: 'income' }))).toEqual([
+      salary.id,
+    ]);
+    expect(ids(await transactions.list({ type: 'transfer' }))).toEqual([
+      savings.id,
+    ]);
+  });
+
+  it('filters by account, including incoming transfers', async () => {
+    const { savings } = await seed();
+    expect(ids(await transactions.list({ accountId: cash.id }))).toEqual([
+      savings.id,
+    ]);
+    expect(await transactions.list({ accountId: bank.id })).toHaveLength(3);
+  });
+
+  it('filters by category', async () => {
+    const { market, groceriesId } = await seed();
+    expect(ids(await transactions.list({ categoryId: groceriesId }))).toEqual([
+      market.id,
+    ]);
+  });
+
+  it('filters by an inclusive date range', async () => {
+    const { market, salary } = await seed();
+    expect(
+      ids(await transactions.list({ from: '2026-09-01', to: '2026-09-30' })),
+    ).toEqual([salary.id, market.id]);
+    expect(
+      ids(await transactions.list({ from: '2026-09-25', to: '2026-09-25' })),
+    ).toEqual([salary.id]);
+  });
+
+  it('searches payee, description and note, ignoring ASCII case', async () => {
+    const { market, salary, savings } = await seed();
+    expect(ids(await transactions.list({ search: 'torre' }))).toEqual([
+      market.id,
+    ]);
+    expect(ids(await transactions.list({ search: 'SALARIO' }))).toEqual([
+      salary.id,
+    ]);
+    expect(ids(await transactions.list({ search: 'semana' }))).toEqual([
+      savings.id,
+    ]);
+    // Archived movements are never found.
+    expect(await transactions.list({ search: 'viejo' })).toEqual([]);
+  });
+
+  it('matches %, _ and backslash literally in the search text', async () => {
+    const { savings } = await seed();
+    expect(ids(await transactions.list({ search: '100%' }))).toEqual([
+      savings.id,
+    ]);
+    expect(ids(await transactions.list({ search: '%' }))).toEqual([savings.id]);
+    expect(await transactions.list({ search: '_' })).toEqual([]);
+    expect(await transactions.list({ search: '\\' })).toEqual([]);
+  });
+
+  it('combines filters and limits the result', async () => {
+    const { market } = await seed();
+    expect(
+      ids(
+        await transactions.list({
+          type: 'expense',
+          accountId: bank.id,
+          from: '2026-09-01',
+          search: 'super',
+        }),
+      ),
+    ).toEqual([market.id]);
+    expect(await transactions.list({ limit: 2 })).toHaveLength(2);
+  });
+});
+
+describe('balances of every account at once', () => {
+  it('match getAccountBalance for each account', async () => {
+    await transactions.create(movement({ type: 'income', amountMinor: 5000 }));
+    await transactions.create(
+      movement({
+        accountId: creditCard.id,
+        cardId: visa.id,
+        amountMinor: 45000,
+      }),
+    );
+    await transactions.create(
+      movement({
+        type: 'transfer',
+        amountMinor: 45000,
+        toAccountId: creditCard.id,
+      }),
+    );
+
+    const balances = await transactions.listAccountBalances();
+    for (const account of [bank, cash, creditCard]) {
+      expect(balances[account.id]).toBe(
+        await transactions.getAccountBalance(account.id),
+      );
+    }
+    expect(balances[creditCard.id]).toBe(0);
+    expect(balances[bank.id]).toBe(100000 + 5000 - 45000);
+  });
+
+  it('leave out archived accounts and archived movements', async () => {
+    const spent = await transactions.create(
+      movement({ accountId: bank.id, amountMinor: 700 }),
+    );
+    await transactions.softDelete(spent.id);
+    await createAccountRepository(database.db).softDelete(cash.id);
+
+    const balances = await transactions.listAccountBalances();
+    expect(balances[cash.id]).toBeUndefined();
+    expect(balances[bank.id]).toBe(100000);
+  });
+});
+
+describe('credit card payment', () => {
+  it('is a single transfer: the purchase stays the only expense', async () => {
+    const purchase = await transactions.create(
+      movement({
+        accountId: creditCard.id,
+        cardId: visa.id,
+        amountMinor: 30000,
+      }),
+    );
+    const payment = await transactions.create(
+      movement({
+        type: 'transfer',
+        accountId: bank.id,
+        toAccountId: creditCard.id,
+        amountMinor: 30000,
+      }),
+    );
+
+    expect(ids(await transactions.list({ type: 'expense' }))).toEqual([
+      purchase.id,
+    ]);
+    expect(payment).toMatchObject({ categoryId: null, cardId: null });
+    expect(await transactions.getAccountBalance(creditCard.id)).toBe(0);
+    expect(await transactions.getAccountBalance(bank.id)).toBe(70000);
   });
 });

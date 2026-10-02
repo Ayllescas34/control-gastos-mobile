@@ -98,11 +98,11 @@ Detalles en `docs/categories-management.md`.
 `validateTransaction(transaction, context)` es una función pura que devuelve `{ valid, errors }` con todas las reglas incumplidas. Separa dos grupos:
 
 - `validateTransactionFields`: reglas que solo necesitan la transacción (monto; `toAccountId`, `categoryId` y `cardId` según el tipo).
-- `validateTransactionRelations`: reglas que necesitan otras entidades, que el llamador pasa en `context`. Hoy: que la tarjeta pertenezca a `accountId`.
+- `validateTransactionRelations`: reglas que necesitan otras entidades, que el llamador pasa en `context` (cuentas, tarjetas y categorías utilizables): las cuentas existen y comparten la moneda del movimiento (reglas 6 y 10), la tarjeta pertenece a `accountId` (regla 13) y la categoría es del mismo tipo que el movimiento.
 
 `validateAccount(account)` y `validateCard(card, context)` siguen el mismo contrato. Los repositorios de cuentas y tarjetas las ejecutan antes de escribir. Detalles en `docs/accounts-management.md`.
 
-Todavía no se valida en código que la moneda coincida con la de la cuenta (reglas 6 y 10), porque requiere recibir las cuentas.
+Detalles de movimientos, filtros y saldos en `docs/transactions-management.md`.
 
 ## Decisiones pendientes
 

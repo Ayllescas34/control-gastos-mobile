@@ -68,12 +68,12 @@ export function createCardRepository(db: AppDatabase) {
       return card;
     },
 
-    /** All active cards, ordered by alias. */
-    async list(): Promise<Card[]> {
+    /** All active cards by alias; `includeArchived` also returns archived ones (e.g. to name the card of a past movement). */
+    async list(options: { includeArchived?: boolean } = {}): Promise<Card[]> {
       const rows = await db
         .select()
         .from(cards)
-        .where(notDeleted(cards))
+        .where(options.includeArchived ? undefined : notDeleted(cards))
         .orderBy(asc(cards.alias), asc(cards.createdAt));
       return rows.map(rowToCard);
     },

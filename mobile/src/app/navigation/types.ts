@@ -1,5 +1,6 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 import type { CategoryKind } from '../../features/categories';
+import type { TransactionType } from '../../features/transactions';
 
 export type MainTabParamList = {
   Dashboard: undefined;
@@ -13,7 +14,9 @@ export type MainTabParamList = {
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   TransactionDetail: { transactionId: string };
-  NewTransaction: undefined;
+  /** The "+" action. type: optional preselected movement type. */
+  NewTransaction: { type?: TransactionType } | undefined;
+  EditTransaction: { transactionId: string };
   Accounts: undefined;
   AccountDetail: { accountId: string };
   /** Without accountId: create. With it: edit that account. */

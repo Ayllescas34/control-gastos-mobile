@@ -59,7 +59,7 @@ export function AccountDetailScreen({ navigation, route }: Props) {
     );
   }
 
-  const { account, cards } = resource.data;
+  const { account, cards, balanceMinor } = resource.data;
   const visual = ACCOUNT_TYPE_VISUALS[account.type];
 
   async function archive() {
@@ -109,21 +109,24 @@ export function AccountDetailScreen({ navigation, route }: Props) {
         </View>
         <View>
           <AppText variant="label" color="textSecondary">
-            Saldo inicial
+            Saldo actual
           </AppText>
           <AppText variant="amountLarge">
-            {formatMoney(account.initialBalanceMinor, account.currency)}
+            {formatMoney(balanceMinor, account.currency)}
           </AppText>
         </View>
         <AppText variant="caption" color="textSecondary">
-          El saldo actual se calculará con tus movimientos cuando empieces a
-          registrarlos.
+          Saldo inicial más tus movimientos registrados.
         </AppText>
       </Card>
 
       <Card>
         <DetailRow label="Tipo" value={visual.label} />
         <DetailRow label="Moneda" value={account.currency} />
+        <DetailRow
+          label="Saldo inicial"
+          value={formatMoney(account.initialBalanceMinor, account.currency)}
+        />
         <DetailRow label="Estado" value="Activa" />
       </Card>
 

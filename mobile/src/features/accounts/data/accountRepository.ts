@@ -69,11 +69,14 @@ export function createAccountRepository(db: AppDatabase) {
       return account;
     },
 
-    async list(): Promise<Account[]> {
+    /** Active accounts; `includeArchived` also returns archived ones (e.g. to name the account of a past movement). */
+    async list(
+      options: { includeArchived?: boolean } = {},
+    ): Promise<Account[]> {
       const rows = await db
         .select()
         .from(accounts)
-        .where(notDeleted(accounts))
+        .where(options.includeArchived ? undefined : notDeleted(accounts))
         .orderBy(asc(accounts.name), asc(accounts.createdAt));
       return rows.map(rowToAccount);
     },

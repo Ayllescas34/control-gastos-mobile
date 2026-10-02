@@ -8,6 +8,14 @@ const BANK = 'account-bank';
 const CREDIT = 'account-credit';
 
 const context: TransactionValidationContext = {
+  accounts: [
+    { id: BANK, currency: 'GTQ' },
+    { id: CREDIT, currency: 'GTQ' },
+  ],
+  categories: [
+    { id: 'category-salary', kind: 'income' },
+    { id: 'category-fuel', kind: 'expense' },
+  ],
   cards: [
     { id: 'card-debit', accountId: BANK },
     { id: 'card-credit', accountId: CREDIT },

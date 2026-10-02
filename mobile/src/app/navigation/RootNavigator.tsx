@@ -18,8 +18,8 @@ import {
   CategoryFormScreen,
 } from '../../features/categories';
 import {
-  NewTransactionScreen,
   TransactionDetailScreen,
+  TransactionFormScreen,
 } from '../../features/transactions';
 import { useAppTheme, type AppTheme } from '../../shared/theme';
 import { MainTabs } from './MainTabs';
@@ -59,9 +59,10 @@ export function RootStack() {
       />
       <Stack.Screen
         name="NewTransaction"
-        component={NewTransactionScreen}
+        component={TransactionFormScreen}
         options={{ title: 'Nuevo movimiento', presentation: 'modal' }}
       />
+      <Stack.Screen name="EditTransaction" component={TransactionFormScreen} />
       {/* Accounts management, reached from Settings. Form titles are set per mode. */}
       <Stack.Screen
         name="Accounts"
