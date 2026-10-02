@@ -43,7 +43,7 @@ Icono dentro de un contenedor tintado (por ejemplo, el tipo de un movimiento).
 <IconBadge name="chart" variant="primary" size="lg" />
 ```
 
-- `variant`: `primary`, `income`, `expense`, `transfer`, `neutral` (por defecto), `warning`.
+- `variant`: `primary`, `income`, `expense`, `transfer`, `neutral` (por defecto), `warning`, `error`.
 - `size`: `sm` (32), `md` (40, por defecto), `lg` (48).
 - El fondo se deriva del color del tono con `withAlpha` (12% en light, 20% en dark). `neutral` usa `surfaceMuted`.
 

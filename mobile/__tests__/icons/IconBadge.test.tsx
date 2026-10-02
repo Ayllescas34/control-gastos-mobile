@@ -42,6 +42,7 @@ describe('IconBadge', () => {
     ['expense', 'expense'],
     ['transfer', 'transfer'],
     ['warning', 'warning'],
+    ['error', 'error'],
   ])(
     'variant %s tints its background from the %s token',
     async (variant, token) => {
