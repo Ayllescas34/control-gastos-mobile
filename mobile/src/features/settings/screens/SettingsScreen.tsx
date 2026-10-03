@@ -24,6 +24,14 @@ export function SettingsScreen() {
           onPress={() => navigation.navigate('Categories')}
           accessibilityHint="Abre la administración de categorías"
         />
+        <ListItem
+          testID="settings-budgets"
+          title="Presupuestos"
+          subtitle="Define límites mensuales de gasto"
+          leading={<IconBadge name="chart" variant="primary" />}
+          onPress={() => navigation.navigate('Budgets')}
+          accessibilityHint="Abre la administración de presupuestos"
+        />
       </Card>
       <AppText variant="caption" color="textSecondary">
         Las demás preferencias de la aplicación estarán disponibles en una

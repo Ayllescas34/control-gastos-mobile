@@ -11,6 +11,7 @@ Los tipos viven en:
 - `mobile/src/features/transactions/domain/validateTransaction.ts`: validación de invariantes de `Transaction`.
 - `mobile/src/features/accounts/domain/validateAccount.ts` y `validateCard.ts`: validación de `Account` y `Card`.
 - `mobile/src/features/categories/domain/types.ts` y `validateCategory.ts`: `Category` y su validación.
+- `mobile/src/features/budgets/domain/`: `Budget`, `validateBudget` y los cálculos de avance (`budgetProgress.ts`).
 
 ## Entidades y relaciones
 
@@ -20,6 +21,7 @@ Account 1 ──── 0..n Transaction   transaction.accountId (cuenta afectada
 Account 1 ──── 0..n Transaction   transaction.toAccountId (destino, solo en transfer)
 Card    1 ──── 0..n Transaction   transaction.cardId (plástico usado, opcional)
 Category 1 ──── 0..n Transaction   transaction.categoryId (opcional; solo income/expense)
+Category 1 ──── 0..n Budget        budget.categoryId (solo categorías de gastos; uno activo por moneda)
 ```
 
 Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
@@ -74,6 +76,14 @@ Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
 28. Archivar una categoría no modifica los movimientos que la usan.
 
 Detalles en `docs/categories-management.md`.
+
+## Presupuestos
+
+29. Un presupuesto es un límite mensual recurrente de una categoría de gastos en una moneda (`amountMinor` entero > 0). Solo puede haber uno activo por categoría y moneda.
+30. Lo consumen solo los `expense` de su categoría y moneda en el mes actual (`localDate`), no archivados. Ingresos y transferencias (incluido el pago de tarjeta) nunca lo consumen; `pending` sí.
+31. Archivar una categoría no archiva su presupuesto, pero una categoría archivada no recibe presupuestos nuevos.
+
+Detalles en `docs/budgets.md`.
 
 ## Datos sensibles
 

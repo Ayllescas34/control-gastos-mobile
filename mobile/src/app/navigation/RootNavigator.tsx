@@ -13,6 +13,7 @@ import {
   CardDetailScreen,
   CardFormScreen,
 } from '../../features/accounts';
+import { BudgetFormScreen, BudgetsScreen } from '../../features/budgets';
 import {
   CategoriesScreen,
   CategoryFormScreen,
@@ -88,6 +89,13 @@ export function RootStack() {
         options={{ title: 'Categorías' }}
       />
       <Stack.Screen name="CategoryForm" component={CategoryFormScreen} />
+      {/* Budgets management, reached from Settings. Form titles are set per mode. */}
+      <Stack.Screen
+        name="Budgets"
+        component={BudgetsScreen}
+        options={{ title: 'Presupuestos' }}
+      />
+      <Stack.Screen name="BudgetForm" component={BudgetFormScreen} />
     </Stack.Navigator>
   );
 }
