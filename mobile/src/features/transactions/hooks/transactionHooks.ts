@@ -36,7 +36,7 @@ type Repositories = ReturnType<typeof useTransactionRepositories>;
  * Accounts, cards and categories by id, archived ones included so past movements keep
  * their names. One read per entity type, not per transaction.
  */
-async function loadReferences(
+export async function loadReferences(
   repositories: Repositories,
 ): Promise<ReferenceLookup> {
   const [accounts, cards, categories] = await Promise.all([

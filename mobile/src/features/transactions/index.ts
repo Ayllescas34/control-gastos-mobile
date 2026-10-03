@@ -18,6 +18,9 @@ export { TransactionFormScreen } from './screens/TransactionFormScreen';
 export {
   createTransactionRepository,
   InvalidTransactionError,
+  type CategoryExpenseTotal,
+  type DailyTotal,
+  type LocalDateRange,
   type NewTransaction,
   type TransactionChanges,
   type TransactionFilters,

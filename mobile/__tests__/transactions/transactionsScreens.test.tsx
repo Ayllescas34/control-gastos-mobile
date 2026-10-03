@@ -530,7 +530,7 @@ describe('search and filters', () => {
 });
 
 describe('Inicio', () => {
-  it('shows the latest real movements under the demo summary', async () => {
+  it('shows the latest real movements with no demo summary', async () => {
     const fixture = await seedAccounts();
     await repos().transactions.create(
       movement(fixture, { payee: 'Movimiento real' }),
@@ -538,7 +538,7 @@ describe('Inicio', () => {
 
     const view = await open({ routes: [{ name: 'MainTabs' }] });
 
-    expect(hasText(view, 'Datos de demostración')).toBe(true);
+    expect(hasText(view, 'Datos de demostración')).toBe(false);
     expect(hasText(view, 'Movimiento real')).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 # Gestión de movimientos
 
-Registro real de gastos, ingresos y transferencias en SQLite. Reemplaza los movimientos de demostración en **Movimientos**, en el detalle y en "Movimientos recientes" del Inicio (el resumen del Inicio sigue siendo demo, marcado con su badge).
+Registro real de gastos, ingresos y transferencias en SQLite. Reemplaza los movimientos de demostración en **Movimientos**, en el detalle y en "Movimientos recientes" del Inicio. El resumen del Inicio también es real: ver `docs/dashboard.md`.
 
 ## Arquitectura
 
@@ -58,7 +58,7 @@ Derivados, nunca almacenados: saldo inicial + ingresos + transferencias entrante
 
 ## Repositorio
 
-`list(filters)`, `getById`, `create`, `update`, `softDelete`, `listByAccount`, `getAccountBalance`, `listAccountBalances`.
+`list(filters)`, `getById`, `create`, `update`, `softDelete`, `listByAccount`, `getAccountBalance`, `listAccountBalances`, y para el Inicio `listDailyTotals(range)` y `listExpenseTotalsByCategory(range)` (sumas en SQL, sin transferencias; ver `docs/dashboard.md`).
 
 Filtros (`TransactionFilters`, combinables): `type`, `accountId` (origen o destino), `categoryId`, `from`/`to` (rango inclusivo de `localDate`), `search` (contiene, en `payee`, `description` y `note`; `%`, `_` y `\` se buscan literalmente), `limit`.
 

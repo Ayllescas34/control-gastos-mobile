@@ -1,4 +1,5 @@
 import {
+  eachDayOfInterval,
   endOfMonth,
   format,
   isValid,
@@ -51,6 +52,16 @@ export function monthRange(
     from: toLocalDate(startOfMonth(month)),
     to: toLocalDate(endOfMonth(month)),
   };
+}
+
+/** Every civil date from `from` to `to`, both included (empty when `to` is before `from`). */
+export function localDatesBetween(from: LocalDate, to: LocalDate): LocalDate[] {
+  const start = parse(from, LOCAL_DATE_FORMAT, new Date());
+  const end = parse(to, LOCAL_DATE_FORMAT, new Date());
+  if (end < start) {
+    return [];
+  }
+  return eachDayOfInterval({ start, end }).map(toLocalDate);
 }
 
 /**
