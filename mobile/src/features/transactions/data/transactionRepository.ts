@@ -21,7 +21,7 @@ import {
 } from '../../../core/db';
 import type { EntityId, LocalDate } from '../../../shared/domain';
 import { nowIsoDateTime } from '../../../shared/lib/dates';
-import type { MinorUnits } from '../../../shared/lib/money';
+import type { CurrencyCode, MinorUnits } from '../../../shared/lib/money';
 import type { Transaction, TransactionType } from '../domain/types';
 import {
   validateTransaction,
@@ -49,6 +49,24 @@ export type TransactionFilters = {
   /** Text contained in payee, description or note. */
   search?: string;
   limit?: number;
+};
+
+/** Inclusive civil-date range on localDate (YYYY-MM-DD). */
+export type LocalDateRange = { from: LocalDate; to: LocalDate };
+
+/** Sum of the income or expense movements of one civil day in one currency. */
+export type DailyTotal = {
+  localDate: LocalDate;
+  type: 'income' | 'expense';
+  currency: CurrencyCode;
+  totalMinor: MinorUnits;
+};
+
+/** Sum of the expenses of one category (null: uncategorized) in one currency. */
+export type CategoryExpenseTotal = {
+  categoryId: EntityId | null;
+  currency: CurrencyCode;
+  totalMinor: MinorUnits;
 };
 
 /** Thrown before writing when validateTransaction() reports broken domain rules. */
@@ -342,6 +360,70 @@ export function createTransactionRepository(db: AppDatabase) {
       return Object.fromEntries(
         rows.map(row => [row.accountId, row.balanceMinor]),
       );
+    },
+
+    /**
+     * Income and expense totals per civil day and currency in `range` (summed in SQL, never
+     * across currencies). Transfers are left out: they are neither income nor expense, so a
+     * credit card payment never counts as a second expense. Same rows as the balances:
+     * non-deleted movements, `pending` included. Ordered by day.
+     */
+    async listDailyTotals(range: LocalDateRange): Promise<DailyTotal[]> {
+      const rows = await db
+        .select({
+          localDate: transactions.localDate,
+          type: transactions.type,
+          currency: transactions.currency,
+          totalMinor: sql<number>`sum(${transactions.amountMinor})`,
+        })
+        .from(transactions)
+        .where(
+          and(
+            notDeleted(transactions),
+            inArray(transactions.type, ['income', 'expense']),
+            gte(transactions.localDate, range.from),
+            lte(transactions.localDate, range.to),
+          ),
+        )
+        .groupBy(
+          transactions.localDate,
+          transactions.type,
+          transactions.currency,
+        )
+        .orderBy(transactions.localDate, transactions.type);
+      return rows.map(row => ({
+        localDate: row.localDate,
+        type: row.type === 'income' ? 'income' : 'expense',
+        currency: row.currency,
+        totalMinor: row.totalMinor,
+      }));
+    },
+
+    /**
+     * Expense totals per category and currency in `range`, largest first (summed in SQL).
+     * Archived categories keep their movements, so they appear here too.
+     */
+    async listExpenseTotalsByCategory(
+      range: LocalDateRange,
+    ): Promise<CategoryExpenseTotal[]> {
+      const totalMinor = sql<number>`sum(${transactions.amountMinor})`;
+      return db
+        .select({
+          categoryId: transactions.categoryId,
+          currency: transactions.currency,
+          totalMinor,
+        })
+        .from(transactions)
+        .where(
+          and(
+            notDeleted(transactions),
+            eq(transactions.type, 'expense'),
+            gte(transactions.localDate, range.from),
+            lte(transactions.localDate, range.to),
+          ),
+        )
+        .groupBy(transactions.categoryId, transactions.currency)
+        .orderBy(desc(totalMinor), transactions.categoryId);
     },
   };
 }
