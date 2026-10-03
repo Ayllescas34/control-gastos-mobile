@@ -146,6 +146,7 @@ describe('initialization and migrations', () => {
     );
     expect(tables.map(([name]) => name)).toEqual([
       'accounts',
+      'budgets',
       'cards',
       'categories',
       'schema_migrations',
@@ -166,6 +167,7 @@ describe('initialization and migrations', () => {
     );
     const byName = Object.fromEntries(indexes);
     expect(Object.keys(byName)).toEqual([
+      'budgets_category_currency_unique',
       'cards_account_id_idx',
       'cards_id_account_id_unique',
       'categories_kind_name_unique',
@@ -175,8 +177,8 @@ describe('initialization and migrations', () => {
       'transactions_local_date_idx',
       'transactions_to_account_id_idx',
     ]);
-    for (const name of Object.keys(byName).filter(n =>
-      n.startsWith('transactions_'),
+    for (const name of Object.keys(byName).filter(
+      n => n.startsWith('transactions_') || n.startsWith('budgets_'),
     )) {
       expect(byName[name]).toMatch(/WHERE .*deleted_at" IS NULL/);
     }

@@ -1,3 +1,4 @@
+import { isCurrencyCode } from '../../../shared/lib/money';
 import { ACCOUNT_TYPES, type Account } from './types';
 
 export const ACCOUNT_NAME_MAX_LENGTH = 60;
@@ -13,9 +14,6 @@ export type AccountValidationResult = {
   valid: boolean;
   errors: AccountValidationError[];
 };
-
-/** ISO 4217 shape: three uppercase letters. */
-const CURRENCY_CODE = /^[A-Z]{3}$/;
 
 /**
  * The fields an account's rules depend on (all checkable without I/O). `type` is widened
@@ -47,7 +45,7 @@ export function validateAccount(
   ) {
     errors.push('type_invalid');
   }
-  if (!CURRENCY_CODE.test(account.currency)) {
+  if (!isCurrencyCode(account.currency)) {
     errors.push('currency_invalid');
   }
   if (!Number.isSafeInteger(account.initialBalanceMinor)) {

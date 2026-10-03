@@ -51,6 +51,7 @@ Migración de datos `0002_default_categories` (`drizzle-kit generate --custom`):
 - Las categorías archivadas no aparecen en las listas normales ni al registrar movimientos.
 - Los movimientos que la usan conservan su `category_id` y la siguen mostrando (`list({ includeArchived: true })`). Una categoría usada nunca se borra físicamente (FK RESTRICT).
 - Un nombre archivado puede reutilizarse en una categoría nueva.
+- Si la categoría tiene un presupuesto activo, el presupuesto **no** se archiva: sigue calculándose y se marca "Categoría archivada" en Presupuestos. Una categoría archivada no recibe presupuestos nuevos (`docs/budgets.md`).
 
 ## UI
 

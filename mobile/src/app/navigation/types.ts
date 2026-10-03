@@ -27,6 +27,9 @@ export type RootStackParamList = {
   Categories: undefined;
   /** categoryId: edit (and archive) it. kind (create only): preselects the kind. */
   CategoryForm: { categoryId?: string; kind?: CategoryKind } | undefined;
+  Budgets: undefined;
+  /** budgetId: edit (and archive) it. categoryId (create only): preselects the category. */
+  BudgetForm: { budgetId?: string; categoryId?: string } | undefined;
 };
 
 declare global {

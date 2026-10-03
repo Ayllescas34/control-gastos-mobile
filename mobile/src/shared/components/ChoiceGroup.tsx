@@ -7,6 +7,8 @@ export type ChoiceOption<T extends string> = {
   value: T;
   label: string;
   icon?: IconName;
+  /** This option alone cannot be chosen (e.g. already in use); announced as disabled. */
+  disabled?: boolean;
 };
 
 type ChoiceGroupProps<T extends string> = {
@@ -50,6 +52,7 @@ export function ChoiceGroup<T extends string>({
       >
         {options.map(option => {
           const selected = option.value === value;
+          const optionDisabled = disabled || option.disabled === true;
           const foreground = selected ? 'primary' : 'textPrimary';
           return (
             <Pressable
@@ -57,9 +60,14 @@ export function ChoiceGroup<T extends string>({
               testID={testID ? `${testID}-${option.value}` : undefined}
               accessibilityRole="radio"
               accessibilityLabel={option.label}
-              accessibilityState={{ checked: selected, disabled }}
-              disabled={disabled}
-              onPress={disabled ? undefined : () => onChange(option.value)}
+              accessibilityState={{
+                checked: selected,
+                disabled: optionDisabled,
+              }}
+              disabled={optionDisabled}
+              onPress={
+                optionDisabled ? undefined : () => onChange(option.value)
+              }
               style={({ pressed }) => [
                 styles.chip,
                 {
@@ -67,7 +75,7 @@ export function ChoiceGroup<T extends string>({
                     ? withAlpha(theme.colors.primary, SELECTED_TINT)
                     : theme.colors.surfaceMuted,
                   borderColor: selected ? theme.colors.primary : 'transparent',
-                  opacity: disabled ? 0.5 : pressed ? 0.7 : 1,
+                  opacity: optionDisabled ? 0.5 : pressed ? 0.7 : 1,
                 },
               ]}
             >
