@@ -19,6 +19,10 @@ import {
   CategoryFormScreen,
 } from '../../features/categories';
 import {
+  SavingsGoalFormScreen,
+  SavingsGoalsScreen,
+} from '../../features/savings';
+import {
   TransactionDetailScreen,
   TransactionFormScreen,
 } from '../../features/transactions';
@@ -96,6 +100,13 @@ export function RootStack() {
         options={{ title: 'Presupuestos' }}
       />
       <Stack.Screen name="BudgetForm" component={BudgetFormScreen} />
+      {/* Savings goals, reached from Settings. Form titles are set per mode. */}
+      <Stack.Screen
+        name="SavingsGoals"
+        component={SavingsGoalsScreen}
+        options={{ title: 'Metas de ahorro' }}
+      />
+      <Stack.Screen name="SavingsGoalForm" component={SavingsGoalFormScreen} />
     </Stack.Navigator>
   );
 }

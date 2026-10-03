@@ -4,6 +4,7 @@ import { createTestDatabase } from '../../src/core/db/testing/createTestDatabase
 import { sqliteErrorMessage } from '../../src/core/db/testing/sqliteErrorMessage';
 import {
   AccountHasActiveCardsError,
+  AccountHasActiveSavingsGoalError,
   createAccountRepository,
   createCardRepository,
   InvalidAccountError,
@@ -11,6 +12,7 @@ import {
   type AccountRepository,
   type CardRepository,
 } from '../../src/features/accounts';
+import { createSavingsGoalRepository } from '../../src/features/savings';
 
 const ISO_UTC = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const NOW = '2026-09-30T12:00:00.000Z';
@@ -334,6 +336,61 @@ describe('archiving an account', () => {
       sql`SELECT count(*) FROM ${accounts}`,
     );
     expect(rows).toBe(1);
+  });
+});
+
+describe('archiving an account with a savings goal', () => {
+  const newGoal = (accountId: string) =>
+    createSavingsGoalRepository(database.db).create({
+      accountId,
+      name: 'Laptop',
+      targetAmountMinor: 1000000,
+      targetDate: null,
+    });
+
+  it('is refused while the account has an active savings goal', async () => {
+    const account = await newBank();
+    const goal = await newGoal(account.id);
+
+    await expect(accountRepo.softDelete(account.id)).rejects.toBeInstanceOf(
+      AccountHasActiveSavingsGoalError,
+    );
+    expect(await accountRepo.getById(account.id)).not.toBeNull();
+    expect(
+      await createSavingsGoalRepository(database.db).getById(goal.id),
+    ).not.toBeNull();
+  });
+
+  it('is allowed once the goal is archived', async () => {
+    const account = await newBank();
+    const goal = await newGoal(account.id);
+    await createSavingsGoalRepository(database.db).softDelete(goal.id);
+
+    expect(await accountRepo.softDelete(account.id)).toBe(true);
+    expect(await accountRepo.list()).toEqual([]);
+  });
+
+  it('checks active cards first, as before', async () => {
+    const account = await newBank();
+    await newGoal(account.id);
+    await cardRepo.create({
+      accountId: account.id,
+      alias: 'Débito',
+      last4: '1234',
+      network: 'visa',
+    });
+
+    await expect(accountRepo.softDelete(account.id)).rejects.toBeInstanceOf(
+      AccountHasActiveCardsError,
+    );
+  });
+
+  it('does not affect other accounts', async () => {
+    const withGoal = await newBank();
+    const other = await newBank();
+    await newGoal(withGoal.id);
+
+    expect(await accountRepo.softDelete(other.id)).toBe(true);
   });
 });
 

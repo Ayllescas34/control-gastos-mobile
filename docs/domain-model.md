@@ -12,6 +12,7 @@ Los tipos viven en:
 - `mobile/src/features/accounts/domain/validateAccount.ts` y `validateCard.ts`: validación de `Account` y `Card`.
 - `mobile/src/features/categories/domain/types.ts` y `validateCategory.ts`: `Category` y su validación.
 - `mobile/src/features/budgets/domain/`: `Budget`, `validateBudget` y los cálculos de avance (`budgetProgress.ts`).
+- `mobile/src/features/savings/domain/`: `SavingsGoal`, `validateSavingsGoal` y los cálculos de avance (`savingsGoalProgress.ts`).
 
 ## Entidades y relaciones
 
@@ -22,6 +23,7 @@ Account 1 ──── 0..n Transaction   transaction.toAccountId (destino, solo
 Card    1 ──── 0..n Transaction   transaction.cardId (plástico usado, opcional)
 Category 1 ──── 0..n Transaction   transaction.categoryId (opcional; solo income/expense)
 Category 1 ──── 0..n Budget        budget.categoryId (solo categorías de gastos; uno activo por moneda)
+Account 1 ──── 0..1 SavingsGoal   savingsGoal.accountId (una meta activa por cuenta; no credit_card)
 ```
 
 Tipos de cuenta: `cash`, `bank`, `savings`, `credit_card`, `other`.
@@ -84,6 +86,15 @@ Detalles en `docs/categories-management.md`.
 31. Archivar una categoría no archiva su presupuesto, pero una categoría archivada no recibe presupuestos nuevos.
 
 Detalles en `docs/budgets.md`.
+
+## Metas de ahorro
+
+32. Una meta de ahorro es "quiero tener `targetAmountMinor` acumulado en esta cuenta". No representa dinero adicional: lo ahorrado es el saldo derivado de su cuenta (regla 4), en la moneda de la cuenta. No se guardan monto ahorrado, moneda ni estado.
+33. Una meta tiene exactamente una cuenta (activa al crear, no `credit_card`, no editable) y una cuenta tiene como máximo una meta activa.
+34. Se aporta y se retira con `transfer` normales, que no son ingreso ni gasto y no consumen presupuestos. No se crean transacciones para la meta.
+35. Una cuenta con una meta activa no se puede archivar. Completar una meta es archivarla.
+
+Detalles en `docs/savings.md`.
 
 ## Datos sensibles
 

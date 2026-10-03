@@ -57,6 +57,7 @@ Las reglas de dominio se ejecutan antes de escribir (`InvalidAccountError`, `Inv
 - Archivar es `UPDATE deleted_at`. Las listas y lecturas normales excluyen archivados. Nada se borra físicamente.
 - **Decisión:** una cuenta con tarjetas activas no se puede archivar (`AccountHasActiveCardsError`). No hay cascada: primero se archivan sus tarjetas. Así ninguna tarjeta activa apunta a una cuenta oculta. La UI lo explica antes de pedir confirmación.
 - No se pueden crear tarjetas en una cuenta archivada.
+- **Decisión:** una cuenta con una meta de ahorro activa tampoco se puede archivar (`AccountHasActiveSavingsGoalError`, mismo patrón que las tarjetas): la meta mide el saldo de la cuenta. Primero se archiva la meta (`docs/savings.md`). Si se intenta, la UI muestra "Esta cuenta tiene una meta de ahorro activa. Archiva primero la meta en Configuración → Metas de ahorro."
 
 ## Navegación
 

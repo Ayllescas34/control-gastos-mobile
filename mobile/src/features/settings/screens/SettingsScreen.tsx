@@ -32,6 +32,14 @@ export function SettingsScreen() {
           onPress={() => navigation.navigate('Budgets')}
           accessibilityHint="Abre la administración de presupuestos"
         />
+        <ListItem
+          testID="settings-savings"
+          title="Metas de ahorro"
+          subtitle="Sigue cuánto llevas ahorrado en tus cuentas"
+          leading={<IconBadge name="wallet" variant="primary" />}
+          onPress={() => navigation.navigate('SavingsGoals')}
+          accessibilityHint="Abre la administración de metas de ahorro"
+        />
       </Card>
       <AppText variant="caption" color="textSecondary">
         Las demás preferencias de la aplicación estarán disponibles en una

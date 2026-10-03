@@ -8,6 +8,7 @@ export {
 } from './domain/types';
 export {
   AccountHasActiveCardsError,
+  AccountHasActiveSavingsGoalError,
   EntityNotAvailableError,
   InvalidAccountError,
   InvalidCardError,

@@ -37,6 +37,17 @@ export class AccountHasActiveCardsError extends Error {
   }
 }
 
+/**
+ * An account with an active savings goal cannot be archived: the goal measures the
+ * account's balance, which hidden accounts no longer report. The goal is archived first.
+ */
+export class AccountHasActiveSavingsGoalError extends Error {
+  constructor() {
+    super('Account has an active savings goal');
+    this.name = 'AccountHasActiveSavingsGoalError';
+  }
+}
+
 /** The account or card to update no longer exists or was archived meanwhile. */
 export class EntityNotAvailableError extends Error {
   readonly entity: 'account' | 'card';

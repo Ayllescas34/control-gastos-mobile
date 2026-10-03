@@ -55,6 +55,7 @@ Derivados, nunca almacenados: saldo inicial + ingresos + transferencias entrante
 
 - `getAccountBalance(id)` (detalle de cuenta) y `listAccountBalances()` (lista de cuentas, **una sola consulta** con `GROUP BY`) comparten la misma expresión SQL: una sola fuente de verdad.
 - Cuentas muestra ahora el saldo actual; el saldo inicial queda como dato en el detalle.
+- Las metas de ahorro usan `listAccountBalances()` como lo ahorrado (`docs/savings.md`). Ahorrar o retirar es una `transfer` normal hacia o desde la cuenta de la meta: no se crea ningún movimiento adicional ni deja de ser transferencia.
 
 ## Repositorio
 
