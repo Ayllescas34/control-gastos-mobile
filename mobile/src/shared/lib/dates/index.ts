@@ -5,6 +5,7 @@ export {
   localDateDaysBefore,
   localDatesBetween,
   monthRange,
+  monthRangeOf,
   occurredAtFor,
   toLocalDate,
   todayLocalDate,
