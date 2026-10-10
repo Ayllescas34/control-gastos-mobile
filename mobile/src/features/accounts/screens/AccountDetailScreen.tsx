@@ -17,6 +17,7 @@ import { formatMoney } from '../../../shared/lib/money';
 import { spacing } from '../../../shared/theme';
 import {
   ARCHIVE_BLOCKED_MESSAGE,
+  archiveAccountMessage,
   describeAccountsError,
 } from '../components/accountMessages';
 import { ACCOUNT_TYPE_VISUALS } from '../components/accountVisuals';
@@ -85,7 +86,7 @@ export function AccountDetailScreen({ navigation, route }: Props) {
     }
     Alert.alert(
       '¿Archivar cuenta?',
-      `"${account.name}" dejará de aparecer entre tus cuentas activas. Sus datos se conservan.`,
+      archiveAccountMessage(account, balanceMinor),
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Archivar', style: 'destructive', onPress: archive },
