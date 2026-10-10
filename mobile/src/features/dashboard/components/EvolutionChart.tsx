@@ -12,9 +12,16 @@ import {
 import type { CurrencySummary, DayEvolution } from '../domain/dashboardSummary';
 
 type EvolutionChartProps = {
-  summary: CurrencySummary;
+  summary: Pick<
+    CurrencySummary,
+    'currency' | 'days' | 'incomeMinor' | 'expenseMinor'
+  >;
   period: LocalDateRange;
   periodLabel: string;
+  /** Prefix of the chart's testIDs, per screen. */
+  testIDPrefix?: string;
+  /** How the screen reader names the period, before its label. */
+  periodDescription?: string;
 };
 
 /** Plot height, on the spacing scale. */
@@ -32,6 +39,8 @@ export function EvolutionChart({
   summary,
   period,
   periodLabel,
+  testIDPrefix = 'dashboard',
+  periodDescription = 'del mes actual',
 }: EvolutionChartProps) {
   const theme = useAppTheme();
   const { currency, days } = summary;
@@ -49,7 +58,7 @@ export function EvolutionChart({
   const bar = (date: string, kind: 'income' | 'expense', valueMinor: number) =>
     valueMinor > 0 && (
       <View
-        testID={`dashboard-evolution-${kind}-${date}`}
+        testID={`${testIDPrefix}-evolution-${kind}-${date}`}
         style={[
           styles.bar,
           {
@@ -75,10 +84,10 @@ export function EvolutionChart({
         </AppText>
       ) : (
         <View
-          testID={`dashboard-evolution-${currency}`}
+          testID={`${testIDPrefix}-evolution-${currency}`}
           accessible
           accessibilityRole="image"
-          accessibilityLabel={`Evolución de ingresos y gastos del mes actual, ${periodLabel}: ${
+          accessibilityLabel={`Evolución de ingresos y gastos ${periodDescription}, ${periodLabel}: ${
             days.length
           } ${
             days.length === 1 ? 'día' : 'días'
