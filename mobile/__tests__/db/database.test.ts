@@ -149,6 +149,7 @@ describe('initialization and migrations', () => {
       'budgets',
       'cards',
       'categories',
+      'savings_goals',
       'schema_migrations',
       'transactions',
     ]);
@@ -171,6 +172,7 @@ describe('initialization and migrations', () => {
       'cards_account_id_idx',
       'cards_id_account_id_unique',
       'categories_kind_name_unique',
+      'savings_goals_account_unique',
       'transactions_account_id_local_date_idx',
       'transactions_card_id_idx',
       'transactions_category_id_local_date_idx',
@@ -178,7 +180,10 @@ describe('initialization and migrations', () => {
       'transactions_to_account_id_idx',
     ]);
     for (const name of Object.keys(byName).filter(
-      n => n.startsWith('transactions_') || n.startsWith('budgets_'),
+      n =>
+        n.startsWith('transactions_') ||
+        n.startsWith('budgets_') ||
+        n.startsWith('savings_goals_'),
     )) {
       expect(byName[name]).toMatch(/WHERE .*deleted_at" IS NULL/);
     }

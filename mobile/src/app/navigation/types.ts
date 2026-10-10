@@ -30,6 +30,9 @@ export type RootStackParamList = {
   Budgets: undefined;
   /** budgetId: edit (and archive) it. categoryId (create only): preselects the category. */
   BudgetForm: { budgetId?: string; categoryId?: string } | undefined;
+  SavingsGoals: undefined;
+  /** Without goalId: create. With it: edit (and archive) that goal. */
+  SavingsGoalForm: { goalId?: string } | undefined;
 };
 
 declare global {

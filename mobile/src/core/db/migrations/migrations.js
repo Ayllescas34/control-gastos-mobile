@@ -5,6 +5,7 @@ import m0000 from './0000_initial_schema.sql';
 import m0001 from './0001_categories.sql';
 import m0002 from './0002_default_categories.sql';
 import m0003 from './0003_budgets.sql';
+import m0004 from './0004_savings_goals.sql';
 
   export default {
     journal,
@@ -12,7 +13,8 @@ import m0003 from './0003_budgets.sql';
       m0000,
 m0001,
 m0002,
-m0003
+m0003,
+m0004
     }
   }
   
