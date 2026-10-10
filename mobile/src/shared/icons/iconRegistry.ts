@@ -20,6 +20,7 @@ import CircleCheck from 'lucide-react-native/icons/circle-check';
 import CircleX from 'lucide-react-native/icons/circle-x';
 import Clapperboard from 'lucide-react-native/icons/clapperboard';
 import Coffee from 'lucide-react-native/icons/coffee';
+import DatabaseBackup from 'lucide-react-native/icons/database-backup';
 import CreditCard from 'lucide-react-native/icons/credit-card';
 import Ellipsis from 'lucide-react-native/icons/ellipsis';
 import Funnel from 'lucide-react-native/icons/funnel';
@@ -110,4 +111,5 @@ export const iconRegistry = Object.freeze({
   warning: TriangleAlert,
   error: CircleX,
   success: CircleCheck,
+  backup: DatabaseBackup,
 } satisfies Record<string, LucideIcon>);
