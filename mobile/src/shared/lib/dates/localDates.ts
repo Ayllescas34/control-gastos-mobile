@@ -54,6 +54,17 @@ export function monthRange(
   };
 }
 
+/**
+ * First and last civil date of the month containing `localDate`, `monthsAgo` months back
+ * (negative: forward). Works on civil dates only, so it never shifts by time zone.
+ */
+export function monthRangeOf(
+  localDate: LocalDate,
+  monthsAgo = 0,
+): { from: LocalDate; to: LocalDate } {
+  return monthRange(parse(localDate, LOCAL_DATE_FORMAT, new Date()), monthsAgo);
+}
+
 /** Every civil date from `from` to `to`, both included (empty when `to` is before `from`). */
 export function localDatesBetween(from: LocalDate, to: LocalDate): LocalDate[] {
   const start = parse(from, LOCAL_DATE_FORMAT, new Date());

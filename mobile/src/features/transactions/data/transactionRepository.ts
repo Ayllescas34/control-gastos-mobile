@@ -63,6 +63,13 @@ export type DailyTotal = {
   totalMinor: MinorUnits;
 };
 
+/** How many income or expense movements one currency has in a period. */
+export type MovementCount = {
+  type: 'income' | 'expense';
+  currency: CurrencyCode;
+  count: number;
+};
+
 /** Sum of the expenses of one category (null: uncategorized) in one currency. */
 export type CategoryExpenseTotal = {
   categoryId: EntityId | null;
@@ -116,6 +123,19 @@ function movementEffect(accountId: SQLiteColumn | EntityId): SQL {
     WHEN ${transactions.accountId} = ${accountId} THEN -${transactions.amountMinor}
     ELSE ${transactions.amountMinor}
   END`;
+}
+
+/**
+ * Non-deleted income and expense movements (never transfers) of `range`: the rows behind the
+ * period's income and expense figures, so totals and counts always describe the same set.
+ */
+function incomeAndExpenseIn(range: LocalDateRange): SQL | undefined {
+  return and(
+    notDeleted(transactions),
+    inArray(transactions.type, ['income', 'expense']),
+    gte(transactions.localDate, range.from),
+    lte(transactions.localDate, range.to),
+  );
 }
 
 /**
@@ -393,14 +413,7 @@ export function createTransactionRepository(db: AppDatabase) {
           totalMinor: sql<number>`sum(${transactions.amountMinor})`,
         })
         .from(transactions)
-        .where(
-          and(
-            notDeleted(transactions),
-            inArray(transactions.type, ['income', 'expense']),
-            gte(transactions.localDate, range.from),
-            lte(transactions.localDate, range.to),
-          ),
-        )
+        .where(incomeAndExpenseIn(range))
         .groupBy(
           transactions.localDate,
           transactions.type,
@@ -412,6 +425,28 @@ export function createTransactionRepository(db: AppDatabase) {
         type: row.type === 'income' ? 'income' : 'expense',
         currency: row.currency,
         totalMinor: row.totalMinor,
+      }));
+    },
+
+    /**
+     * Number of income and expense movements per currency in `range`: the same rows that
+     * listDailyTotals sums (transfers left out, non-deleted, `pending` included).
+     */
+    async listMovementCounts(range: LocalDateRange): Promise<MovementCount[]> {
+      const rows = await db
+        .select({
+          type: transactions.type,
+          currency: transactions.currency,
+          count: sql<number>`count(*)`,
+        })
+        .from(transactions)
+        .where(incomeAndExpenseIn(range))
+        .groupBy(transactions.type, transactions.currency)
+        .orderBy(transactions.currency, transactions.type);
+      return rows.map(row => ({
+        type: row.type === 'income' ? 'income' : 'expense',
+        currency: row.currency,
+        count: row.count,
       }));
     },
 
