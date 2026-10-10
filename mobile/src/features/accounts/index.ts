@@ -9,6 +9,7 @@ export {
 export {
   AccountHasActiveCardsError,
   AccountHasActiveSavingsGoalError,
+  AccountSavingsGoalBlocksCreditCardError,
   EntityNotAvailableError,
   InvalidAccountError,
   InvalidCardError,

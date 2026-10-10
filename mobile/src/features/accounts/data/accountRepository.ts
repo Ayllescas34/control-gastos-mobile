@@ -12,6 +12,7 @@ import { nowIsoDateTime } from '../../../shared/lib/dates';
 import {
   AccountHasActiveCardsError,
   AccountHasActiveSavingsGoalError,
+  AccountSavingsGoalBlocksCreditCardError,
   InvalidAccountError,
 } from '../domain/accountErrors';
 import type { Account } from '../domain/types';
@@ -84,8 +85,9 @@ export function createAccountRepository(db: AppDatabase) {
     },
 
     /**
-     * Validates the resulting account before writing. Returns the updated account, or null
-     * when it does not exist or is deleted.
+     * Validates the resulting account before writing. Refuses turning an account with an
+     * active savings goal into a credit card. Returns the updated account, or null when it
+     * does not exist or is deleted.
      */
     async update(
       id: EntityId,
@@ -102,6 +104,17 @@ export function createAccountRepository(db: AppDatabase) {
         initialBalanceMinor:
           changes.initialBalanceMinor ?? current.initialBalanceMinor,
       });
+      if (changes.type === 'credit_card' && current.type !== 'credit_card') {
+        const [{ activeGoals }] = await db
+          .select({ activeGoals: count() })
+          .from(savingsGoals)
+          .where(
+            and(eq(savingsGoals.accountId, id), notDeleted(savingsGoals)),
+          );
+        if (activeGoals > 0) {
+          throw new AccountSavingsGoalBlocksCreditCardError();
+        }
+      }
       const rows = await db
         .update(accounts)
         .set({

@@ -1,6 +1,7 @@
 import {
   AccountHasActiveCardsError,
   AccountHasActiveSavingsGoalError,
+  AccountSavingsGoalBlocksCreditCardError,
   EntityNotAvailableError,
   InvalidAccountError,
   InvalidCardError,
@@ -38,6 +39,9 @@ export const ARCHIVE_BLOCKED_MESSAGE =
 export const ARCHIVE_BLOCKED_BY_GOAL_MESSAGE =
   'Esta cuenta tiene una meta de ahorro activa. Archiva primero la meta en Configuración → Metas de ahorro.';
 
+export const CREDIT_CARD_BLOCKED_BY_GOAL_MESSAGE =
+  'Esta cuenta tiene una meta de ahorro activa y no puede convertirse en tarjeta de crédito. Archiva primero la meta en Configuración → Metas de ahorro.';
+
 /** Message for a failed load or save. Domain errors are explained; others stay generic. */
 export function describeAccountsError(error: unknown): string {
   if (error instanceof AccountHasActiveCardsError) {
@@ -45,6 +49,9 @@ export function describeAccountsError(error: unknown): string {
   }
   if (error instanceof AccountHasActiveSavingsGoalError) {
     return ARCHIVE_BLOCKED_BY_GOAL_MESSAGE;
+  }
+  if (error instanceof AccountSavingsGoalBlocksCreditCardError) {
+    return CREDIT_CARD_BLOCKED_BY_GOAL_MESSAGE;
   }
   if (error instanceof EntityNotAvailableError) {
     return error.entity === 'account'

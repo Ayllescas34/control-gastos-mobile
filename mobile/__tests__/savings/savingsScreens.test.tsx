@@ -461,6 +461,34 @@ describe('accounts with a goal', () => {
     expect(consoleError).toHaveBeenCalled();
     expect(await repos().accounts.getById(fixture.savings.id)).not.toBeNull();
   });
+
+  it('explains why an account with an active goal cannot become a credit card', async () => {
+    const fixture = await seed();
+    await repos().goals.create(laptop(fixture.savings.id));
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const view = await open({
+      routes: [
+        { name: 'MainTabs' },
+        { name: 'AccountForm', params: { accountId: fixture.savings.id } },
+      ],
+    });
+
+    await pressByTestId(view.root, 'account-type-credit_card');
+    await pressByTestId(view.root, 'account-submit');
+
+    expect(
+      hasText(
+        view,
+        'Esta cuenta tiene una meta de ahorro activa y no puede convertirse en tarjeta de crédito. Archiva primero la meta en Configuración → Metas de ahorro.',
+      ),
+    ).toBe(true);
+    expect(consoleError).toHaveBeenCalled();
+    expect(
+      (await repos().accounts.getById(fixture.savings.id))?.type,
+    ).toBe('savings');
+  });
 });
 
 describe('refresh', () => {

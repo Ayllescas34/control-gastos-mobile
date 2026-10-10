@@ -47,6 +47,7 @@ Account 1 ──── 0..1 SavingsGoal activa   savingsGoal.accountId
 - Cuentas permitidas: `savings`, `bank`, `cash` y `other`. **No `credit_card`**: su saldo es deuda, no ahorro.
 - La cuenta debe estar activa al crear.
 - **Una cuenta con meta activa no se puede archivar** (`AccountHasActiveSavingsGoalError`, mismo patrón que `AccountHasActiveCardsError`). Primero se archiva la meta. Así una meta activa nunca mide una cuenta oculta (las cuentas archivadas no aparecen en `listAccountBalances`).
+- **Una cuenta con meta activa no puede convertirse en `credit_card`** (`AccountSavingsGoalBlocksCreditCardError` en `accountRepository.update`). Los demás cambios de la cuenta (nombre, saldo inicial y los otros tipos) siguen permitidos. Tras archivar la meta, el cambio a `credit_card` vuelve a estar permitido. Así una meta activa nunca mide una tarjeta de crédito.
 
 ## SQLite
 
@@ -145,13 +146,12 @@ No hay `completed_at`. **Completar una meta es archivarla**: "Archivar meta" pid
 
 - `__tests__/savings/savingsDomain.test.ts`: validaciones (nombre, 60 caracteres, objetivo, `MAX_SAFE_INTEGER`, fechas inválidas y pasadas, cuenta inexistente/archivada/`credit_card`, cuenta con meta, edición de sí misma, mismo nombre en otra cuenta), progreso 0/parcial/alcanzado/superado, saldo negativo, monedas, fecha pasada, orden y formulario.
 - `__tests__/db/savingsGoalRepository.test.ts` (SQLite real): CRUD, CHECK de nombre/objetivo/fecha, FK y RESTRICT, índice único parcial, recrear tras archivar, saldo inicial, ingreso, gasto, transferencia de entrada y salida, archivados, `pending`, meta alcanzada y superada, monedas, bloqueo de archivar la cuenta, migración `0004` sobre una instalación existente y persistencia entre conexiones.
-- `__tests__/db/accountRepository.test.ts`: la nueva regla de archivado de cuentas.
-- `__tests__/savings/savingsScreens.test.tsx` (rutas reales): navegación desde Configuración, carga, error y reintento, vacío, lista y frase accesible, barra, alcanzada, superada, fecha pasada, validación, creación, cuenta con meta deshabilitada y duplicado creado mientras tanto, sin cuentas utilizables, edición, archivado y cancelación, mensaje al archivar una cuenta con meta y recarga al volver tras una transferencia.
+- `__tests__/db/accountRepository.test.ts`: la nueva regla de archivado de cuentas y el bloqueo del cambio de tipo a `credit_card` con meta activa.
+- `__tests__/savings/savingsScreens.test.tsx` (rutas reales): navegación desde Configuración, carga, error y reintento, vacío, lista y frase accesible, barra, alcanzada, superada, fecha pasada, validación, creación, cuenta con meta deshabilitada y duplicado creado mientras tanto, sin cuentas utilizables, edición, archivado y cancelación, mensaje al archivar una cuenta con meta, mensaje al convertirla en tarjeta de crédito y recarga al volver tras una transferencia.
 
 ## Limitaciones V1
 
 - Una meta activa por cuenta; sin repartir el saldo de una cuenta entre varias metas.
 - El avance es el saldo completo de la cuenta (incluido lo que ya tenía al crear la meta).
 - Si se retira el dinero tras cumplir la meta, el avance baja: se espera archivar la meta al cumplirla.
-- Si una cuenta con meta cambia su tipo a `credit_card` en Cuentas, la meta se conserva (la regla de tipo se valida solo al crear).
 - Sin historial, alertas, notificaciones ni integración con el Dashboard o Presupuestos.

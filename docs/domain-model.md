@@ -90,7 +90,7 @@ Detalles en `docs/budgets.md`.
 ## Metas de ahorro
 
 32. Una meta de ahorro es "quiero tener `targetAmountMinor` acumulado en esta cuenta". No representa dinero adicional: lo ahorrado es el saldo derivado de su cuenta (regla 4), en la moneda de la cuenta. No se guardan monto ahorrado, moneda ni estado.
-33. Una meta tiene exactamente una cuenta (activa al crear, no `credit_card`, no editable) y una cuenta tiene como máximo una meta activa.
+33. Una meta tiene exactamente una cuenta (activa al crear, no `credit_card` mientras la meta esté activa, no editable) y una cuenta tiene como máximo una meta activa.
 34. Se aporta y se retira con `transfer` normales, que no son ingreso ni gasto y no consumen presupuestos. No se crean transacciones para la meta.
 35. Una cuenta con una meta activa no se puede archivar. Completar una meta es archivarla.
 
