@@ -81,7 +81,8 @@ Un movimiento guarda solo `cardId`. Nunca número completo de tarjeta, CVV ni PI
 
 ## Limitaciones conocidas
 
-- La búsqueda ignora mayúsculas solo en ASCII (`LIKE` de SQLite): "cafe" no encuentra "Café".
+- La búsqueda ignora mayúsculas ASCII (`LIKE`) y las tildes y diéresis del español: "deposito" encuentra "Depósito" y "pinguino" encuentra "Pingüino". La `ñ` sigue siendo una letra propia: "NIÑO" encuentra "niño", pero "nino" no lo encuentra (así "ano" nunca encuentra "año"). Las mismas sustituciones (`SEARCH_FOLDS`, `shared/lib/text`) se aplican al texto buscado y, con `replace()` en SQL, a `payee`, `description` y `note`. Los datos guardados no cambian. El texto descompuesto (letra + marca combinada) se trata igual que el compuesto. Otras mayúsculas no ASCII (por ejemplo "Ç") no se pliegan.
+- Coste medido (SQLite de Node): con 5 000 movimientos, buscar tarda unos 49 ms y con 50 000, unos 270 ms, porque se recorren las filas aplicando las sustituciones. La búsqueda espera 300 ms tras la última tecla.
 - Sin paginación: `list` devuelve todos los movimientos que cumplen los filtros (el Inicio usa `limit`).
 - `status` es siempre `confirmed` en movimientos manuales.
 

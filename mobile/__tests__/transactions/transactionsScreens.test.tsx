@@ -479,6 +479,20 @@ describe('search and filters', () => {
     expect(hasText(view, 'No hay movimientos que coincidan')).toBe(true);
   });
 
+  it('finds a movement typed without accents', async () => {
+    const { fixture, market } = await seedMany();
+    const deposit = await repos().transactions.create(
+      movement(fixture, { payee: 'Depósito en efectivo' }),
+    );
+    const view = await open(MOVEMENTS);
+
+    await typeByTestId(view.root, 'transactions-search', 'deposito');
+    await waitForSearch();
+
+    expect(shown(view, deposit.id)).toBe(true);
+    expect(shown(view, market.id)).toBe(false);
+  });
+
   it('filters by type', async () => {
     const { market, salary } = await seedMany();
     const view = await open(MOVEMENTS);

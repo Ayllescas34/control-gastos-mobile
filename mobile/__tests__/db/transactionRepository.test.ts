@@ -667,6 +667,65 @@ describe('filters and search', () => {
     expect(await transactions.list({ search: '\\' })).toEqual([]);
   });
 
+  describe('ignoring Spanish accents', () => {
+    async function seedAccents() {
+      const create = (fields: Partial<NewTransaction>) =>
+        transactions.create(movement(fields));
+      return {
+        deposit: await create({ payee: 'Depósito Banco' }),
+        penguin: await create({ description: 'Pingüino de peluche' }),
+        child: await create({ note: 'Regalo para el niño' }),
+        year: await create({ payee: 'Fiesta de Año Nuevo' }),
+        plain: await create({ payee: 'Ano y otros' }),
+        // Decomposed (NFD) text: letter + combining mark, as some keyboards produce.
+        decomposed: await create({ payee: 'Café Ñaño' }),
+      };
+    }
+    const search = async (text: string) =>
+      ids(await transactions.list({ search: text })).sort();
+
+    it('finds accented vowels with or without accents, in any case', async () => {
+      const { deposit, penguin } = await seedAccents();
+      for (const text of ['deposito', 'DEPOSITO', 'depósito', 'DEPÓSITO']) {
+        expect(await search(text)).toEqual([deposit.id]);
+      }
+      for (const text of ['pinguino', 'PINGÜINO', 'pingüino']) {
+        expect(await search(text)).toEqual([penguin.id]);
+      }
+    });
+
+    it('keeps ñ as its own letter: case folds, but n never matches ñ', async () => {
+      const { child, year, plain, decomposed } = await seedAccents();
+      expect(await search('niño')).toEqual([child.id]);
+      expect(await search('NIÑO')).toEqual([child.id]);
+      expect(await search('nino')).toEqual([]);
+      // "ñaño" (the decomposed payee) also contains "año".
+      const withAno = [year.id, decomposed.id].sort();
+      expect(await search('año')).toEqual(withAno);
+      expect(await search('AÑO')).toEqual(withAno);
+      // No false positive between "ano" and "año".
+      expect(await search('ano')).toEqual([plain.id]);
+    });
+
+    it('treats decomposed text like composed text', async () => {
+      const { decomposed } = await seedAccents();
+      expect(await search('cafe')).toEqual([decomposed.id]);
+      expect(await search('café')).toEqual([decomposed.id]);
+      expect(await search('Café')).toEqual([decomposed.id]);
+      expect(await search('ñaño')).toEqual([decomposed.id]);
+      expect(await search('nano')).toEqual([]);
+    });
+
+    it('changes nothing stored', async () => {
+      const { deposit, decomposed } = await seedAccents();
+      await search('deposito');
+      expect(await transactions.getById(deposit.id)).toEqual(deposit);
+      expect((await transactions.getById(decomposed.id))?.payee).toBe(
+        'Café Ñaño',
+      );
+    });
+  });
+
   it('combines filters and limits the result', async () => {
     const { market } = await seed();
     expect(
