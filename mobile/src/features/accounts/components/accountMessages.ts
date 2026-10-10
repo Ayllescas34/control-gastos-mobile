@@ -1,3 +1,4 @@
+import { formatMoney, type MinorUnits } from '../../../shared/lib/money';
 import {
   AccountHasActiveCardsError,
   AccountHasActiveSavingsGoalError,
@@ -6,6 +7,7 @@ import {
   InvalidAccountError,
   InvalidCardError,
 } from '../domain/accountErrors';
+import type { Account } from '../domain/types';
 import {
   ACCOUNT_NAME_MAX_LENGTH,
   type AccountValidationError,
@@ -35,6 +37,24 @@ export const CARD_ERROR_MESSAGES: Record<CardValidationError, string> = {
 
 export const ARCHIVE_BLOCKED_MESSAGE =
   'Esta cuenta tiene tarjetas activas. Archiva primero sus tarjetas.';
+
+/**
+ * Body of the archive confirmation. With a balance other than zero it states the amount
+ * and that the account leaves the active totals (Inicio and Cuentas only add active
+ * accounts); its movements are kept either way. Archiving is not blocked by a balance.
+ */
+export function archiveAccountMessage(
+  account: Pick<Account, 'name' | 'currency'>,
+  balanceMinor: MinorUnits,
+): string {
+  if (balanceMinor === 0) {
+    return `"${account.name}" dejará de aparecer entre tus cuentas activas. Sus datos se conservan.`;
+  }
+  return `"${account.name}" tiene un saldo de ${formatMoney(
+    balanceMinor,
+    account.currency,
+  )}. Al archivarla dejará de aparecer entre tus cuentas activas y ese saldo ya no se sumará a tus totales. Su historial de movimientos se conserva.`;
+}
 
 export const ARCHIVE_BLOCKED_BY_GOAL_MESSAGE =
   'Esta cuenta tiene una meta de ahorro activa. Archiva primero la meta en Configuración → Metas de ahorro.';

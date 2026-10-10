@@ -22,6 +22,7 @@ import {
 import type { EntityId, LocalDate } from '../../../shared/domain';
 import { nowIsoDateTime } from '../../../shared/lib/dates';
 import type { CurrencyCode, MinorUnits } from '../../../shared/lib/money';
+import { SEARCH_FOLDS, foldSearchText } from '../../../shared/lib/text';
 import type { Transaction, TransactionType } from '../domain/types';
 import {
   validateTransaction,
@@ -80,13 +81,28 @@ export class InvalidTransactionError extends Error {
   }
 }
 
-/** LIKE pattern for "contains", with %, _ and \ in the text matched literally. */
+/**
+ * LIKE pattern for "contains": the text in search form (accents folded, see
+ * shared/lib/text), with %, _ and \ matched literally.
+ */
 function containsPattern(text: string): string {
-  return `%${text.replace(/[\\%_]/g, character => `\\${character}`)}%`;
+  return `%${foldSearchText(text).replace(
+    /[\\%_]/g,
+    character => `\\${character}`,
+  )}%`;
 }
 
+/** The column in search form: the same SEARCH_FOLDS as foldSearchText, applied in SQL. */
+function foldedForSearch(column: SQLiteColumn): SQL {
+  return SEARCH_FOLDS.reduce<SQL>(
+    (folded, [from, to]) => sql`replace(${folded}, ${from}, ${to})`,
+    sql`${column}`,
+  );
+}
+
+/** LIKE keeps ignoring ASCII case; the folds make it ignore Spanish accents too. */
 function containsText(column: SQLiteColumn, pattern: string): SQL {
-  return sql`${column} LIKE ${pattern} ESCAPE '\\'`;
+  return sql`${foldedForSearch(column)} LIKE ${pattern} ESCAPE '\\'`;
 }
 
 /**

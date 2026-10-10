@@ -10,6 +10,11 @@ import {
   createCardRepository,
   type Account,
 } from '../../src/features/accounts';
+import {
+  createTransactionRepository,
+  type NewTransaction,
+} from '../../src/features/transactions';
+import { todayLocalDate } from '../../src/shared/lib/dates';
 import { formatMoney } from '../../src/shared/lib/money';
 import {
   chooseAlertButton,
@@ -472,3 +477,121 @@ describe('archiving', () => {
     expect(consoleError).toHaveBeenCalled();
   });
 });
+
+describe('archiving an account with a balance', () => {
+  const detail = (accountId: string): InitialState => ({
+    routes: [
+      { name: 'Accounts' },
+      { name: 'AccountDetail', params: { accountId } },
+    ],
+  });
+
+  function createAccount(initialBalanceMinor: number, type: Account['type']) {
+    return repositories().accounts.create({
+      name: 'Cuenta de prueba',
+      type,
+      currency: 'GTQ',
+      initialBalanceMinor,
+    });
+  }
+
+  /** Confirmation body shown when the user taps "Archivar cuenta". */
+  async function archiveMessage(accountId: string) {
+    const { alert, lastButtons } = spyOnAlerts();
+    const view = await open(detail(accountId));
+    await pressByTestId(view.root, 'account-archive');
+    const [title, message] = alert.mock.calls.at(-1) ?? [];
+    expect(title).toBe('¿Archivar cuenta?');
+    return { message: String(message), lastButtons, view };
+  }
+
+  it('states a positive balance and that it leaves the active totals', async () => {
+    const account = await createAccount(1250050, 'bank');
+
+    const { message } = await archiveMessage(account.id);
+
+    expect(message).toBe(
+      `"Cuenta de prueba" tiene un saldo de ${formatMoney(
+        1250050,
+        'GTQ',
+      )}. Al archivarla dejará de aparecer entre tus cuentas activas y ese saldo ya no se sumará a tus totales. Su historial de movimientos se conserva.`,
+    );
+  });
+
+  it('states a negative balance (debt) the same way', async () => {
+    const account = await createAccount(-150000, 'credit_card');
+
+    const { message } = await archiveMessage(account.id);
+
+    expect(message).toContain(
+      `tiene un saldo de ${formatMoney(-150000, 'GTQ')}.`,
+    );
+    expect(message).toContain('ya no se sumará a tus totales');
+  });
+
+  it('uses the current balance, movements included, not the initial one', async () => {
+    const account = await createAccount(0, 'cash');
+    await createTransactionRepository(database.db).create(
+      income(account.id, 45000),
+    );
+
+    const { message } = await archiveMessage(account.id);
+
+    expect(message).toContain(`tiene un saldo de ${formatMoney(45000, 'GTQ')}.`);
+  });
+
+  it('keeps the previous message when the balance is zero', async () => {
+    const account = await createAccount(0, 'cash');
+
+    const { message } = await archiveMessage(account.id);
+
+    expect(message).toBe(
+      '"Cuenta de prueba" dejará de aparecer entre tus cuentas activas. Sus datos se conservan.',
+    );
+  });
+
+  it('changes nothing when the warning is cancelled', async () => {
+    const account = await createAccount(1250050, 'bank');
+
+    const { lastButtons, view } = await archiveMessage(account.id);
+    await chooseAlertButton(lastButtons(), 'Cancelar');
+
+    expect(await repositories().accounts.getById(account.id)).toEqual(account);
+    expect(hasText(view, 'Saldo actual')).toBe(true);
+  });
+
+  it('still archives when confirmed, keeping the account history', async () => {
+    const account = await createAccount(0, 'cash');
+    const transactions = createTransactionRepository(database.db);
+    const movement = await transactions.create(income(account.id, 45000));
+
+    const { lastButtons, view } = await archiveMessage(account.id);
+    await chooseAlertButton(lastButtons(), 'Archivar');
+
+    expect(await repositories().accounts.list()).toEqual([]);
+    expect(hasText(view, 'No tienes cuentas todavía')).toBe(true);
+    // The movement and its derived balance are untouched; only the account is hidden.
+    expect(await transactions.getById(movement.id)).toEqual(movement);
+    expect(await transactions.listByAccount(account.id)).toEqual([movement]);
+  });
+});
+
+function income(accountId: string, amountMinor: number): NewTransaction {
+  return {
+    type: 'income',
+    amountMinor,
+    currency: 'GTQ',
+    accountId,
+    toAccountId: null,
+    categoryId: null,
+    cardId: null,
+    occurredAt: new Date().toISOString(),
+    localDate: todayLocalDate(),
+    description: null,
+    payee: 'Depósito',
+    note: null,
+    source: 'manual',
+    status: 'confirmed',
+    externalRef: null,
+  };
+}
