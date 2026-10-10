@@ -40,6 +40,14 @@ export function SettingsScreen() {
           onPress={() => navigation.navigate('SavingsGoals')}
           accessibilityHint="Abre la administración de metas de ahorro"
         />
+        <ListItem
+          testID="settings-backup"
+          title="Respaldo de datos"
+          subtitle="Exporta o restaura todos tus datos"
+          leading={<IconBadge name="backup" variant="primary" />}
+          onPress={() => navigation.navigate('Backup')}
+          accessibilityHint="Abre el respaldo y la restauración de datos"
+        />
       </Card>
       <AppText variant="caption" color="textSecondary">
         Las demás preferencias de la aplicación estarán disponibles en una

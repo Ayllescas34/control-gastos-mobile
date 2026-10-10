@@ -29,3 +29,4 @@ export {
   createBackupRepository,
   type BackupRepository,
 } from './data/backupRepository';
+export { BackupScreen } from './screens/BackupScreen';
