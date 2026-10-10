@@ -33,6 +33,7 @@ export type RootStackParamList = {
   SavingsGoals: undefined;
   /** Without goalId: create. With it: edit (and archive) that goal. */
   SavingsGoalForm: { goalId?: string } | undefined;
+  Backup: undefined;
 };
 
 declare global {

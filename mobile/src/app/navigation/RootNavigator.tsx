@@ -13,6 +13,7 @@ import {
   CardDetailScreen,
   CardFormScreen,
 } from '../../features/accounts';
+import { BackupScreen } from '../../features/backup';
 import { BudgetFormScreen, BudgetsScreen } from '../../features/budgets';
 import {
   CategoriesScreen,
@@ -107,6 +108,11 @@ export function RootStack() {
         options={{ title: 'Metas de ahorro' }}
       />
       <Stack.Screen name="SavingsGoalForm" component={SavingsGoalFormScreen} />
+      <Stack.Screen
+        name="Backup"
+        component={BackupScreen}
+        options={{ title: 'Respaldo de datos' }}
+      />
     </Stack.Navigator>
   );
 }

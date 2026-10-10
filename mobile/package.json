@@ -48,6 +48,11 @@
     "react-test-renderer": "19.2.3",
     "typescript": "^6.0.3"
   },
+  "codegenConfig": {
+    "name": "ControlGastosSpecs",
+    "type": "modules",
+    "jsSrcsDir": "src/core/native/specs"
+  },
   "engines": {
     "node": ">= 22.11.0"
   }
