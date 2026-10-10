@@ -281,3 +281,12 @@ Decisiones que conviene conservar desde ahora: UUID generados por la app, timest
 2. **Formato:** JSON versionado (recomendado: portable, se puede validar y probar con `node:sqlite`, y sirve de semilla de sincronización) frente a una copia del archivo `.db` (`VACUUM INTO`): más simple de exportar, pero restaurar exige reemplazar el archivo abierto y no se puede validar.
 3. **Semántica de `pending` y `UNIQUE(source, external_ref)`:** decidir antes de cualquier importación (roadmap, paso 6).
 4. **Aviso al archivar una cuenta con saldo (H2):** solo avisar (recomendado) o bloquear mientras el saldo sea distinto de 0.
+
+## Seguimiento
+
+- **Backup V1 (H1):** integrado en el PR #11.
+- **Consolidación de UX** (rama `feature/ux-consolidation`):
+  - **H2:** corregido. Al archivar una cuenta con saldo distinto de 0, la confirmación muestra el saldo y explica que deja de sumarse a los totales y que el historial se conserva. No bloquea el archivado.
+  - **H4:** se confirma que Movimientos lee todo el historial (período "Todo", sin `limit`), pero no es un problema material. Medido con SQLite de Node: unos 270 ms con 50 000 movimientos, y la lista es virtualizada. No se implementa paginación (ver `docs/transactions-management.md`).
+  - **H8:** `DemoBadge` y sus tokens `demoBackground` y `demoText` se eliminaron (sin uso desde `ca1295b` y `ead3d12`). El `fontSize: 11` de `MainTabs.tsx` se mantiene: es deliberadamente menor que `caption` para que quepan cinco etiquetas, y ningún token existente tiene ese propósito.
+  - **Búsqueda sin acentos (H11):** implementada. La `ñ` se mantiene como letra propia.
