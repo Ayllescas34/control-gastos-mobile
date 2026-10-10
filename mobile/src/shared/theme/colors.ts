@@ -15,8 +15,6 @@ export type ColorPalette = {
   error: string;
   warning: string;
   success: string;
-  demoBackground: string;
-  demoText: string;
 };
 
 export type ColorName = keyof ColorPalette;
@@ -38,8 +36,6 @@ export const lightColors: ColorPalette = {
   error: '#DC2626',
   warning: '#B45309',
   success: '#15803D',
-  demoBackground: '#FEF3C7',
-  demoText: '#92400E',
 };
 
 export const darkColors: ColorPalette = {
@@ -58,8 +54,6 @@ export const darkColors: ColorPalette = {
   error: '#FB7185',
   warning: '#FBBF24',
   success: '#4ADE80',
-  demoBackground: '#3A2E0A',
-  demoText: '#FCD34D',
 };
 
 /** Featured surfaces (e.g. the balance card). Native `backgroundImage`, no gradient library. */
