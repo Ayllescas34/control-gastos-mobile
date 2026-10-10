@@ -171,7 +171,7 @@ La aplicación móvil ya tiene una base de arquitectura sobre la plantilla ofici
 
 - Organización por features en `mobile/src/`: `app/` (navegación y providers), `core/` (configuración), `features/` (una carpeta por funcionalidad, con `domain/`, `components/`, `screens/` y un `index.ts` público) y `shared/` (componentes, tema y utilidades de dinero y fechas).
 - Navegación con React Navigation: tabs principales, detalle de movimiento y modal de nuevo movimiento.
-- Movimientos, cuentas y tarjetas (Configuración → Cuentas) y categorías (Configuración → Categorías) usan datos reales de SQLite; ver `docs/transactions-management.md`, `docs/accounts-management.md` y `docs/categories-management.md`. El Inicio (Dashboard) también usa datos reales del mes actual; ver `docs/dashboard.md`. Presupuestos mensuales por categoría (Configuración → Presupuestos); ver `docs/budgets.md`. Metas de ahorro sobre el saldo real de una cuenta (Configuración → Metas de ahorro); ver `docs/savings.md`.
+- Movimientos, cuentas y tarjetas (Configuración → Cuentas) y categorías (Configuración → Categorías) usan datos reales de SQLite; ver `docs/transactions-management.md`, `docs/accounts-management.md` y `docs/categories-management.md`. El Inicio (Dashboard) también usa datos reales del mes actual; ver `docs/dashboard.md`. Presupuestos mensuales por categoría (Configuración → Presupuestos); ver `docs/budgets.md`. Metas de ahorro sobre el saldo real de una cuenta (Configuración → Metas de ahorro); ver `docs/savings.md`. Respaldo y restauración local en JSON mediante el Storage Access Framework de Android (Configuración → Respaldo de datos); ver `docs/backup.md`.
 - Modelo de dominio de `Account`, `Card` y `Transaction` con validación pura de transacciones. Las reglas están en `docs/domain-model.md`.
 - Persistencia local SQLite en `mobile/src/core/db/` (tablas `accounts`, `budgets`, `cards`, `categories`, `savings_goals`, `transactions`) con repositories en `features/*/data/`. Detalles en `docs/domain-model.md` (sección Persistencia local).
 
@@ -185,6 +185,7 @@ Todavía no existen manejo de estado global, formularios funcionales ni backend.
 - Las foreign keys deben estar activas (`PRAGMA foreign_keys = ON`, verificado en `prepareDatabase`).
 - Dinero siempre como INTEGER en unidades menores. Nunca REAL ni decimales.
 - Atomicidad con `database.withTransaction`, no con `db.transaction()` de Drizzle.
+- Restaurar un respaldo es la única operación que borra filas físicamente: dentro de una sola transacción, después de validar el archivo y de la confirmación del usuario (`docs/backup.md`).
 - Los tests de base de datos usan SQLite real (`node:sqlite`, `createTestDatabase`); no se mockea SQL.
 
 ## UI
