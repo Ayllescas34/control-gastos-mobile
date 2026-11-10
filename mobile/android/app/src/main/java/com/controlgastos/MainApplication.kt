@@ -2,6 +2,7 @@ package com.controlgastos
 
 import android.app.Application
 import com.controlgastos.backup.BackupFilesPackage
+import com.controlgastos.security.AppLockPackage
 import com.controlgastos.wallet.WalletCapturesPackage
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -22,6 +23,8 @@ class MainApplication : Application(), ReactApplication {
           add(BackupFilesPackage())
           // Google Wallet payment notifications (docs/google-wallet.md).
           add(WalletCapturesPackage())
+          // App PIN lock (docs/security.md).
+          add(AppLockPackage())
         },
     )
   }

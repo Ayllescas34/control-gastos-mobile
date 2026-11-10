@@ -1,6 +1,8 @@
 package com.controlgastos
 
+import android.os.Build
 import android.os.Bundle
+import com.controlgastos.security.PinStore
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -16,6 +18,10 @@ class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
+    // With a PIN, Android 13+ shows a blank card in recents instead of the finances.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      setRecentsScreenshotEnabled(!PinStore.isEnabled(this))
+    }
   }
 
   /**

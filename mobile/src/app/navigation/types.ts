@@ -36,6 +36,8 @@ export type RootStackParamList = {
   Backup: undefined;
   /** Google Wallet: connection and payments waiting for review. */
   Wallet: undefined;
+  /** PIN lock: turn on, change, turn off. */
+  Security: undefined;
   /** Turns a Google Wallet capture into a movement. */
   RegisterWalletCapture: { captureId: string };
 };

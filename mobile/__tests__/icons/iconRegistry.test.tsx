@@ -59,6 +59,7 @@ const EXPECTED_ICON_NAMES: readonly IconName[] = [
   'error',
   'success',
   'backup',
+  'lock',
 ];
 
 const registeredNames = Object.keys(iconRegistry) as IconName[];

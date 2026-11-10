@@ -27,6 +27,7 @@ import {
   TransactionDetailScreen,
   TransactionFormScreen,
 } from '../../features/transactions';
+import { SecurityScreen } from '../../features/security';
 import {
   RegisterWalletCaptureScreen,
   WalletScreen,
@@ -116,6 +117,11 @@ export function RootStack() {
         name="Backup"
         component={BackupScreen}
         options={{ title: 'Respaldo de datos' }}
+      />
+      <Stack.Screen
+        name="Security"
+        component={SecurityScreen}
+        options={{ title: 'Seguridad' }}
       />
       <Stack.Screen
         name="Wallet"

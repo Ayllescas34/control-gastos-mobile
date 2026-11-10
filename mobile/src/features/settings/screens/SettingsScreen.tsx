@@ -49,6 +49,14 @@ export function SettingsScreen() {
           accessibilityHint="Abre la administración de metas de ahorro"
         />
         <ListItem
+          testID="settings-security"
+          title="Seguridad"
+          subtitle="PIN de 6 dígitos para abrir la app"
+          leading={<IconBadge name="lock" variant="primary" />}
+          onPress={() => navigation.navigate('Security')}
+          accessibilityHint="Abre el bloqueo con PIN"
+        />
+        <ListItem
           testID="settings-backup"
           title="Respaldo de datos"
           subtitle="Exporta o restaura todos tus datos"

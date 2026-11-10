@@ -31,6 +31,7 @@ import Inbox from 'lucide-react-native/icons/inbox';
 import Info from 'lucide-react-native/icons/info';
 import Landmark from 'lucide-react-native/icons/landmark';
 import Lightbulb from 'lucide-react-native/icons/lightbulb';
+import Lock from 'lucide-react-native/icons/lock';
 import Menu from 'lucide-react-native/icons/menu';
 import Nfc from 'lucide-react-native/icons/nfc';
 import Pencil from 'lucide-react-native/icons/pencil';
@@ -117,4 +118,5 @@ export const iconRegistry = Object.freeze({
   error: CircleX,
   success: CircleCheck,
   backup: DatabaseBackup,
+  lock: Lock,
 } satisfies Record<string, LucideIcon>);
