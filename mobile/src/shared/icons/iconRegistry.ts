@@ -27,10 +27,12 @@ import Funnel from 'lucide-react-native/icons/funnel';
 import GraduationCap from 'lucide-react-native/icons/graduation-cap';
 import HeartPulse from 'lucide-react-native/icons/heart-pulse';
 import House from 'lucide-react-native/icons/house';
+import Inbox from 'lucide-react-native/icons/inbox';
 import Info from 'lucide-react-native/icons/info';
 import Landmark from 'lucide-react-native/icons/landmark';
 import Lightbulb from 'lucide-react-native/icons/lightbulb';
 import Menu from 'lucide-react-native/icons/menu';
+import Nfc from 'lucide-react-native/icons/nfc';
 import Pencil from 'lucide-react-native/icons/pencil';
 import Plane from 'lucide-react-native/icons/plane';
 import Plus from 'lucide-react-native/icons/plus';
@@ -88,6 +90,9 @@ export const iconRegistry = Object.freeze({
   chart: ChartColumn,
   calendar: Calendar,
   category: Tag,
+  /** Tap-to-pay: Google Wallet captures. */
+  contactless: Nfc,
+  inbox: Inbox,
 
   // Categories (visual only: there is no categories domain yet)
   shoppingCart: ShoppingCart,

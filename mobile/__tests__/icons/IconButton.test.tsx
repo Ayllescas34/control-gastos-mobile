@@ -123,8 +123,8 @@ describe('IconButton', () => {
     const { pressable, svg } = await renderButton({ variant: 'tonal' });
 
     expect(svg.props.stroke).toBe(lightColors.primary);
-    expect(styleWhen(pressable, false).backgroundColor).toBe('#2563EB1F');
-    expect(styleWhen(pressable, true).backgroundColor).toBe('#2563EB33');
+    expect(styleWhen(pressable, false).backgroundColor).toBe('#1A73E81F');
+    expect(styleWhen(pressable, true).backgroundColor).toBe('#1A73E833');
   });
 
   it('keeps the glyph hidden: the button label is what is announced', async () => {

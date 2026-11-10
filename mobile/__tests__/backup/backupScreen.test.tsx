@@ -130,7 +130,7 @@ describe('export', () => {
     expect(save).toHaveBeenCalledTimes(1);
     const [fileName, content] = save.mock.calls[0];
     expect(fileName).toBe(`control-gastos-${todayLocalDate()}.json`);
-    const backup = parseBackup(content, 4);
+    const backup = parseBackup(content, 6);
     expect(backup.data).toEqual(await snapshot(database));
     expect(noticeText(view)).toBe(
       'Respaldo guardado. Consérvalo en un lugar seguro: no está cifrado.',
@@ -211,7 +211,7 @@ describe('restore', () => {
     await chooseAlertButton(lastButtons(), 'Sustituir datos');
 
     const restored = await snapshot(target);
-    expect(restored).toEqual(parseBackup(text, 4).data);
+    expect(restored).toEqual(parseBackup(text, 6).data);
     expect(noticeText(view)).toBe(
       'Respaldo restaurado. Tus datos ahora son los del archivo.',
     );

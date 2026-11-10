@@ -167,6 +167,7 @@ const FIELDS: {
     type: oneOf(ACCOUNT_TYPES),
     currency,
     initialBalanceMinor: safeInteger,
+    bankLabel: nullable(isString),
     ...TIMESTAMPS,
   },
   categories: {
@@ -270,6 +271,61 @@ function reject(problem: BackupProblem): never {
   throw new InvalidBackupError([problem]);
 }
 
+type BackupUpgrade = (data: Record<string, unknown>) => void;
+
+/** Adds `field` with `value` to every account row that lacks it (rows are checked later). */
+const addAccountField =
+  (field: string, value: unknown): BackupUpgrade =>
+  data => {
+    const rows = data.accounts;
+    if (!Array.isArray(rows)) {
+      return;
+    }
+    for (const row of rows) {
+      if (isPlainObject(row) && !(field in row)) {
+        row[field] = value;
+      }
+    }
+  };
+
+/**
+ * Explicit converters from each schema version to the next, applied in order to an older
+ * backup before its rows are checked. Nothing else is migrated silently.
+ * - 4 → 5: migration 0005 (Google Wallet) only added `wallet_captures`, which is not backed
+ *   up, and a partial unique index on transactions(source, external_ref); restoring still
+ *   checks it inside the transaction.
+ * - 5 → 6: migration 0006 added accounts.bank_label; older accounts have none.
+ */
+const UPGRADE_TO_NEXT: Readonly<Record<number, BackupUpgrade>> = {
+  4: () => {},
+  5: addAccountField('bankLabel', null),
+};
+
+/** Whether a backup written at `backupVersion` restores into a database at `currentVersion`. */
+export function isRestorableSchemaVersion(
+  backupVersion: number,
+  currentVersion: number,
+): boolean {
+  let version = backupVersion;
+  while (version < currentVersion) {
+    if (UPGRADE_TO_NEXT[version] === undefined) {
+      return false;
+    }
+    version += 1;
+  }
+  return version === currentVersion;
+}
+
+function upgradeBackupData(
+  data: Record<string, unknown>,
+  fromVersion: number,
+  toVersion: number,
+): void {
+  for (let version = fromVersion; version < toVersion; version++) {
+    UPGRADE_TO_NEXT[version](data);
+  }
+}
+
 /**
  * Reads a backup file without touching the database. Checks, in order: size, nesting,
  * JSON, format and versions, the shape and values of every row, and the rules between
@@ -312,9 +368,14 @@ export function parseBackup(
   ) {
     reject({ code: 'invalid_structure' });
   }
-  if (root.schemaVersion !== schemaVersion) {
+  // Checked above: a safe integer.
+  const backupVersion = root.schemaVersion as number;
+  if (!isRestorableSchemaVersion(backupVersion, schemaVersion)) {
     reject({ code: 'schema_mismatch' });
   }
+  upgradeBackupData(root.data, backupVersion, schemaVersion);
+  // The data now has the current tables' shape.
+  root.schemaVersion = schemaVersion;
 
   const fieldProblems = checkRows(root.data);
   if (fieldProblems.length > 0) {

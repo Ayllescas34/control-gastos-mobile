@@ -156,7 +156,8 @@ const optionalText = (text: string): string | null => {
  * repository and are mapped back with transactionFieldOfError.
  *
  * When editing, `previous` keeps its instant if the date did not change, and its origin
- * (source, status, externalRef).
+ * (source, externalRef). Saving always confirms: a `pending` movement captured from Google
+ * Wallet counts as reviewed once the user saves it (docs/google-wallet.md).
  */
 export function parseTransactionForm(
   values: TransactionFormValues,
@@ -214,7 +215,8 @@ export function parseTransactionForm(
     payee: isTransfer ? null : optionalText(values.payee),
     note: optionalText(values.note),
     source: previous?.source ?? 'manual',
-    status: previous?.status ?? 'confirmed',
+    // Saving the form is the user's review: a `pending` capture becomes confirmed.
+    status: 'confirmed',
     externalRef: previous?.externalRef ?? null,
   };
 

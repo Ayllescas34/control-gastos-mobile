@@ -276,6 +276,32 @@ describe('account form', () => {
     expect(hasText(view, 'Banco principal')).toBe(true);
     expect(hasText(view, 'Saldo inicial')).toBe(true);
   });
+
+  it('saves and clears the bank SMS identifier when editing', async () => {
+    const bank = await createBank('Banco');
+    const view = await open({
+      routes: [
+        { name: 'Accounts' },
+        { name: 'AccountDetail', params: { accountId: bank.id } },
+      ],
+    });
+
+    await pressByTestId(view.root, 'account-edit');
+    await typeByTestId(view.root, 'account-bank-label', 'bicheque3');
+    await pressByTestId(view.root, 'account-submit');
+    expect((await repositories().accounts.getById(bank.id))?.bankLabel).toBe(
+      'BICHEQUE3',
+    );
+    expect(hasText(view, 'BICHEQUE3')).toBe(true);
+
+    await pressByTestId(view.root, 'account-edit');
+    expect(inputValue(view.root, 'account-bank-label')).toBe('BICHEQUE3');
+    await typeByTestId(view.root, 'account-bank-label', '');
+    await pressByTestId(view.root, 'account-submit');
+    expect(
+      (await repositories().accounts.getById(bank.id))?.bankLabel,
+    ).toBeNull();
+  });
 });
 
 describe('card form', () => {

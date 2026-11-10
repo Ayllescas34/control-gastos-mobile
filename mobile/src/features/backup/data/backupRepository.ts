@@ -7,6 +7,7 @@ import {
   categories,
   savingsGoals,
   transactions,
+  walletCaptures,
   type AppDatabase,
   type Database,
 } from '../../../core/db';
@@ -31,6 +32,7 @@ import {
   transactionToInsert,
 } from '../../transactions/data/transactionMappers';
 import { InvalidBackupError } from '../domain/backupErrors';
+import { isRestorableSchemaVersion } from '../domain/backupFormat';
 import {
   BACKUP_FORMAT,
   BACKUP_FORMAT_VERSION,
@@ -136,10 +138,18 @@ export function createBackupRepository(database: Database) {
     async restoreBackup(backup: ValidatedBackup): Promise<void> {
       const { data } = backup;
       await database.withTransaction(async tx => {
-        if ((await readSchemaVersion(tx)) !== backup.schemaVersion) {
+        if (
+          !isRestorableSchemaVersion(
+            backup.schemaVersion,
+            await readSchemaVersion(tx),
+          )
+        ) {
           throw new InvalidBackupError([{ code: 'schema_mismatch' }]);
         }
 
+        // Device-local Google Wallet inbox: not in the backup, and it references
+        // transactions, so it goes first (docs/google-wallet.md).
+        await tx.delete(walletCaptures);
         await tx.delete(savingsGoals);
         await tx.delete(budgets);
         await tx.delete(transactions);

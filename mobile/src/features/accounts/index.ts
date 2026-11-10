@@ -31,6 +31,11 @@ export {
   type CardRepository,
   type NewCard,
 } from './data/cardRepository';
+export { walletCardTones } from './components/accountVisuals';
+export {
+  WALLET_CARD_ASPECT_RATIO,
+  WalletCard,
+} from './components/WalletCard';
 export { AccountsScreen } from './screens/AccountsScreen';
 export { AccountDetailScreen } from './screens/AccountDetailScreen';
 export { AccountFormScreen } from './screens/AccountFormScreen';

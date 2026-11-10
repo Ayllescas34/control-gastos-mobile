@@ -24,6 +24,8 @@ export const ACCOUNT_ERROR_MESSAGES: Record<AccountValidationError, string> = {
   type_invalid: 'Elige el tipo de cuenta.',
   currency_invalid: 'La moneda no es válida.',
   initial_balance_invalid: 'El saldo inicial no es válido.',
+  bank_label_invalid:
+    'Usa letras y números como aparecen en el SMS (ej. TCREDITO), separados por coma.',
 };
 
 export const CARD_ERROR_MESSAGES: Record<CardValidationError, string> = {

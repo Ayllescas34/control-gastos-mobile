@@ -19,6 +19,7 @@ export {
 export {
   MAX_BACKUP_BYTES,
   backupFileName,
+  isRestorableSchemaVersion,
   parseBackup,
   serializeBackup,
   summarizeBackup,

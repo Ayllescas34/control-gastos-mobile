@@ -22,14 +22,14 @@ import { accountToInsert, rowToAccount } from './accountMappers';
 export type NewAccount = Pick<
   Account,
   'name' | 'type' | 'currency' | 'initialBalanceMinor'
->;
+> & { bankLabel?: string | null };
 
 /**
  * Currency is not editable: a transaction's currency must match its account's
  * (docs/domain-model.md, rule 6), so changing it would invalidate existing transactions.
  */
 export type AccountChanges = Partial<
-  Pick<Account, 'name' | 'type' | 'initialBalanceMinor'>
+  Pick<Account, 'name' | 'type' | 'initialBalanceMinor' | 'bankLabel'>
 >;
 
 function assertValid(account: NewAccount): void {
@@ -64,6 +64,7 @@ export function createAccountRepository(db: AppDatabase) {
         type: input.type,
         currency: input.currency,
         initialBalanceMinor: input.initialBalanceMinor,
+        bankLabel: input.bankLabel ?? null,
         createdAt: now,
         updatedAt: now,
         deletedAt: null,
@@ -103,6 +104,8 @@ export function createAccountRepository(db: AppDatabase) {
         currency: current.currency,
         initialBalanceMinor:
           changes.initialBalanceMinor ?? current.initialBalanceMinor,
+        bankLabel:
+          changes.bankLabel === undefined ? current.bankLabel : changes.bankLabel,
       });
       if (changes.type === 'credit_card' && current.type !== 'credit_card') {
         const [{ activeGoals }] = await db
@@ -121,6 +124,7 @@ export function createAccountRepository(db: AppDatabase) {
           name: changes.name,
           type: changes.type,
           initialBalanceMinor: changes.initialBalanceMinor,
+          bankLabel: changes.bankLabel,
           updatedAt: nowIsoDateTime(),
         })
         .where(isActive(id))

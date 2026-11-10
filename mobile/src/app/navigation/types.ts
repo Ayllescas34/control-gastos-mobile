@@ -34,6 +34,10 @@ export type RootStackParamList = {
   /** Without goalId: create. With it: edit (and archive) that goal. */
   SavingsGoalForm: { goalId?: string } | undefined;
   Backup: undefined;
+  /** Google Wallet: connection and payments waiting for review. */
+  Wallet: undefined;
+  /** Turns a Google Wallet capture into a movement. */
+  RegisterWalletCapture: { captureId: string };
 };
 
 declare global {

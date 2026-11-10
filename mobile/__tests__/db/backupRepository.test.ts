@@ -70,7 +70,7 @@ describe('export', () => {
     expect(backup).toMatchObject({
       format: 'control-gastos-backup',
       formatVersion: 1,
-      schemaVersion: 4,
+      schemaVersion: 6,
     });
     const byId = <T extends { id: string }>(rows: T[]) =>
       [...rows].sort((a, b) => a.id.localeCompare(b.id));
@@ -240,7 +240,7 @@ describe('restore', () => {
           transactions: [...base.data.transactions, ...many],
         },
       }),
-      4,
+      6,
     );
 
     await createBackupRepository(target).restoreBackup(big);
@@ -376,7 +376,7 @@ describe('atomicity: a failed restore leaves the current data untouched', () => 
       text.replace('"formatVersion":1', '"formatVersion":2'),
       text.replace(/"amountMinor":(\d+)/, '"amountMinor":$1.5'),
     ]) {
-      expect(() => parseBackup(invalid, 4)).toThrow(InvalidBackupError);
+      expect(() => parseBackup(invalid, 6)).toThrow(InvalidBackupError);
     }
     expect(await snapshot(target)).toEqual(before);
   });

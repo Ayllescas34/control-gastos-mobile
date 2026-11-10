@@ -103,19 +103,19 @@ describe('accountRepository', () => {
 
   it('rejects an unknown account type and an invalid currency in the DB', async () => {
     expect(await sqliteErrorMessage(database.db.run(
-        sql`INSERT INTO accounts VALUES ('x', 'X', 'crypto', 'GTQ', 0, ${NOW}, ${NOW}, NULL)`,
+        sql`INSERT INTO accounts VALUES ('x', 'X', 'crypto', 'GTQ', 0, ${NOW}, ${NOW}, NULL, NULL)`,
       ))).toMatch(/accounts_type_check/);
     expect(await sqliteErrorMessage(database.db.run(
-        sql`INSERT INTO accounts VALUES ('x', 'X', 'bank', 'gtq', 0, ${NOW}, ${NOW}, NULL)`,
+        sql`INSERT INTO accounts VALUES ('x', 'X', 'bank', 'gtq', 0, ${NOW}, ${NOW}, NULL, NULL)`,
       ))).toMatch(/accounts_currency_check/);
   });
 
   it('rejects money stored as REAL and timestamps that are not ISO UTC', async () => {
     expect(await sqliteErrorMessage(database.db.run(
-        sql`INSERT INTO accounts VALUES ('x', 'X', 'bank', 'GTQ', 10.5, ${NOW}, ${NOW}, NULL)`,
+        sql`INSERT INTO accounts VALUES ('x', 'X', 'bank', 'GTQ', 10.5, ${NOW}, ${NOW}, NULL, NULL)`,
       ))).toMatch(/accounts_initial_balance_minor_check/);
     expect(await sqliteErrorMessage(database.db.run(
-        sql`INSERT INTO accounts VALUES ('x', 'X', 'bank', 'GTQ', 0, '2026-09-30 12:00:00', ${NOW}, NULL)`,
+        sql`INSERT INTO accounts VALUES ('x', 'X', 'bank', 'GTQ', 0, '2026-09-30 12:00:00', ${NOW}, NULL, NULL)`,
       ))).toMatch(/accounts_timestamps_check/);
   });
 });

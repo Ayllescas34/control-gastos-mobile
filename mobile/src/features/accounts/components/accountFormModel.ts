@@ -6,6 +6,7 @@ import {
 import type { NewAccount } from '../data/accountRepository';
 import type { Account, AccountType } from '../domain/types';
 import {
+  parseBankLabels,
   validateAccount,
   type AccountValidationError,
 } from '../domain/validateAccount';
@@ -16,6 +17,8 @@ export type AccountFormValues = {
   name: string;
   type: AccountType | null;
   initialBalance: string;
+  /** Identifiers in bank SMS, as typed ("TCREDITO, BICHEQUE3"). */
+  bankLabel: string;
 };
 
 export type AccountFormField = keyof AccountFormValues;
@@ -31,6 +34,7 @@ const FIELD_OF_ERROR: Record<AccountValidationError, AccountFormField> = {
   type_invalid: 'type',
   currency_invalid: 'initialBalance',
   initial_balance_invalid: 'initialBalance',
+  bank_label_invalid: 'bankLabel',
 };
 
 const MONEY_ERROR_MESSAGES = {
@@ -43,6 +47,7 @@ export const EMPTY_ACCOUNT_FORM: AccountFormValues = {
   name: '',
   type: null,
   initialBalance: '',
+  bankLabel: '',
 };
 
 export function accountToFormValues(account: Account): AccountFormValues {
@@ -53,6 +58,7 @@ export function accountToFormValues(account: Account): AccountFormValues {
       account.initialBalanceMinor,
       account.currency,
     ),
+    bankLabel: account.bankLabel ?? '',
   };
 }
 
@@ -78,12 +84,15 @@ export function parseAccountForm(
   }
 
   const name = values.name.trim();
+  const labels = parseBankLabels(values.bankLabel);
+  const bankLabel = labels.length > 0 ? labels.join(', ') : null;
   // An unselected type (null) is reported by validateAccount as type_invalid.
   const validation = validateAccount({
     name,
     type: values.type,
     currency,
     initialBalanceMinor,
+    bankLabel,
   });
   for (const code of validation.errors) {
     errors[FIELD_OF_ERROR[code]] ??= ACCOUNT_ERROR_MESSAGES[code];
@@ -94,6 +103,6 @@ export function parseAccountForm(
   }
   return {
     ok: true,
-    input: { name, type: values.type, currency, initialBalanceMinor },
+    input: { name, type: values.type, currency, initialBalanceMinor, bankLabel },
   };
 }

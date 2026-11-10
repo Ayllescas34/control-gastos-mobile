@@ -1,4 +1,4 @@
-export type { ColorName, ColorPalette } from './colors';
+export type { ColorName, ColorPalette, WalletCardTone } from './colors';
 export { iconSize, iconStrokeWidth, type IconSizeToken } from './iconography';
 export type { ShadowLevel, Shadows } from './shadows';
 export { layout, radius, spacing } from './spacing';

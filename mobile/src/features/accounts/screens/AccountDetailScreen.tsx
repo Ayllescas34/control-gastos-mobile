@@ -128,6 +128,10 @@ export function AccountDetailScreen({ navigation, route }: Props) {
           label="Saldo inicial"
           value={formatMoney(account.initialBalanceMinor, account.currency)}
         />
+        <DetailRow
+          label="Identificador en SMS"
+          value={account.bankLabel ?? 'Sin identificador'}
+        />
         <DetailRow label="Estado" value="Activa" />
       </Card>
 

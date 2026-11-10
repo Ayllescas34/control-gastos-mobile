@@ -35,6 +35,8 @@ const EXPECTED_ICON_NAMES: readonly IconName[] = [
   'chart',
   'calendar',
   'category',
+  'contactless',
+  'inbox',
   // Categories
   'shoppingCart',
   'restaurant',

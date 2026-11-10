@@ -34,7 +34,7 @@ android/app/src/main/java/com/controlgastos/backup/
 {
   "format": "control-gastos-backup",
   "formatVersion": 1,
-  "schemaVersion": 4,
+  "schemaVersion": 6,
   "exportedAt": "2026-10-10T02:53:05.213Z",
   "data": {
     "accounts": [ { "id": "…", "name": "…", "type": "bank", "currency": "GTQ", "initialBalanceMinor": 500000, "createdAt": "…", "updatedAt": "…", "deletedAt": null } ],
@@ -51,7 +51,7 @@ android/app/src/main/java/com/controlgastos/backup/
 |---|---|
 | `format` | Siempre `"control-gastos-backup"` |
 | `formatVersion` | `1`. Cualquier otro valor se rechaza. |
-| `schemaVersion` | Índice de la última migración aplicada (`max(idx)` de `schema_migrations`). Restaurar exige el mismo valor que la base actual. |
+| `schemaVersion` | Índice de la última migración aplicada (`max(idx)` de `schema_migrations`). Restaurar exige el mismo valor que la base actual, o uno con convertidor explícito (`isRestorableSchemaVersion`: 4 → 5 → 6). |
 | `exportedAt` | Instante UTC ISO (`YYYY-MM-DDTHH:mm:ss.sssZ`) |
 | `data` | Exactamente las 6 colecciones. Cada fila tiene exactamente los campos de su entidad de dominio (camelCase), con los valores tal como están en SQLite. |
 
@@ -94,7 +94,7 @@ Restaurar es la única operación que borra filas físicamente. Siempre ocurre d
 | JSON inválido | `not_json` |
 | `format` distinto | `unknown_format` |
 | `formatVersion` distinto | `unsupported_version` |
-| `schemaVersion` distinto del de la base | `schema_mismatch` |
+| `schemaVersion` distinto del de la base y sin convertidor | `schema_mismatch` |
 | Claves de primer nivel o colecciones faltantes o extra | `invalid_structure` |
 | Campo faltante, extra o con tipo o valor inválido: UUID v4, instantes ISO, fechas civiles reales, moneda `AAA`, enumeraciones del dominio, iconos de categoría, `last4`, enteros seguros (> 0 donde el schema lo exige) | `invalid_field` |
 | Id repetido en una colección | `duplicate_id` |
@@ -152,7 +152,11 @@ Restaurar es la única operación que borra filas físicamente. Siempre ocurre d
 ## Limitaciones V1
 
 - Solo Android. En otras plataformas el selector no está disponible y se informa.
-- Solo se restauran respaldos con el mismo `schemaVersion` que la base actual. Tras una migración futura, los respaldos anteriores necesitarán un convertidor explícito (no se migra en silencio).
+- Solo se restauran respaldos con el mismo `schemaVersion` que la base actual o con un convertidor explícito. Convertidores (`UPGRADE_TO_NEXT` en `backupFormat.ts`), aplicados en orden antes de validar las filas:
+  - 4 → 5: sin cambios (la migración 0005 solo agregó `wallet_captures`, que no se respalda).
+  - 5 → 6: las cuentas reciben `bankLabel: null` (la migración 0006 agregó `accounts.bank_label`).
+  Nada más se migra en silencio.
+- La bandeja `wallet_captures` (Google Wallet) es local del dispositivo: no está en el respaldo y restaurar la vacía (`docs/google-wallet.md`).
 - Máximo 25 MB por respaldo (del orden de 50 000 movimientos). El archivo completo se carga en memoria.
 - Sustitución total: no hay fusión ni restauración parcial.
 - Sin respaldo automático, nube ni cifrado. `android:allowBackup` sigue en `false`.

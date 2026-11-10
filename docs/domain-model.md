@@ -125,12 +125,12 @@ Detalles en `docs/savings.md`.
 
 Detalles de movimientos, filtros y saldos en `docs/transactions-management.md`.
 
-## Decisiones pendientes
+## Decisiones de importación
 
-Estos puntos **no están decididos**:
+Decididas al integrar Google Wallet (`docs/google-wallet.md`):
 
-- **PENDIENTE:** si una transacción con `status = 'pending'` afecta el saldo. Mientras no se decida, `getAccountBalance` incluye todas las transacciones no borradas, sin filtrar por `status`.
-- **PENDIENTE:** si la combinación `source` + `externalRef` debe ser única (para evitar duplicados en importaciones). Por ahora no existe `UNIQUE(source, external_ref)`; se agregará con una migración en la etapa de importación/integración.
+- Una transacción con `status = 'pending'` ("por revisar") **sí afecta el saldo**: el dinero ya se movió, solo falta revisar sus datos. `getAccountBalance` y los agregados no filtran por `status`. Guardar el formulario de un movimiento lo confirma.
+- La combinación `source` + `externalRef` es **única** cuando `externalRef` no es nulo (índice parcial `transactions_source_external_ref_unique`, migración 0005), incluso entre movimientos archivados.
 
 ## Persistencia local
 

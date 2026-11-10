@@ -11,7 +11,10 @@ import type { CurrencyCode } from '../../../shared/lib/money';
 import { useFormSubmission } from '../../../shared/hooks';
 import { spacing } from '../../../shared/theme';
 import type { NewAccount } from '../data/accountRepository';
-import { ACCOUNT_NAME_MAX_LENGTH } from '../domain/validateAccount';
+import {
+  ACCOUNT_NAME_MAX_LENGTH,
+  BANK_LABEL_MAX_LENGTH,
+} from '../domain/validateAccount';
 import {
   parseAccountForm,
   type AccountFormErrors,
@@ -106,6 +109,17 @@ export function AccountForm({
           keyboardType="numbers-and-punctuation"
           error={errors.initialBalance}
           hint={balanceHint}
+        />
+        <TextField
+          testID="account-bank-label"
+          label="Identificador en mensajes del banco"
+          value={values.bankLabel}
+          onChangeText={text => update('bankLabel', text)}
+          placeholder="Ej. TCREDITO"
+          autoCapitalize="characters"
+          maxLength={BANK_LABEL_MAX_LENGTH}
+          error={errors.bankLabel}
+          hint="Opcional. Cómo nombra el banco a esta cuenta en sus SMS (BiMovil: …Cuenta TCREDITO…). Varios, separados por coma. Así los mensajes se registran solos en esta cuenta."
           returnKeyType="done"
           onSubmitEditing={handleSubmit}
         />

@@ -2,6 +2,7 @@ package com.controlgastos
 
 import android.app.Application
 import com.controlgastos.backup.BackupFilesPackage
+import com.controlgastos.wallet.WalletCapturesPackage
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
@@ -19,6 +20,8 @@ class MainApplication : Application(), ReactApplication {
           // add(MyReactNativePackage())
           // Backup files through the Storage Access Framework (docs/backup.md).
           add(BackupFilesPackage())
+          // Google Wallet payment notifications (docs/google-wallet.md).
+          add(WalletCapturesPackage())
         },
     )
   }

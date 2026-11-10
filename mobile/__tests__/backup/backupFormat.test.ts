@@ -5,6 +5,7 @@ import {
   MAX_BACKUP_BYTES,
   backupFileName,
   createBackupRepository,
+  isRestorableSchemaVersion,
   parseBackup,
   serializeBackup,
   summarizeBackup,
@@ -18,7 +19,7 @@ import {
 } from '../../src/features/backup/components/backupMessages';
 import { seedBackupFixture } from '../../src/features/backup/testing/backupFixture';
 
-const SCHEMA = 4;
+const SCHEMA = 6;
 let database: Database;
 let valid: BackupFile;
 
@@ -140,6 +141,32 @@ describe('rejected before reading any row', () => {
     expect(codes(variant(b => Object.assign(b, { schemaVersion: 3 })))).toEqual(
       ['schema_mismatch'],
     );
+    expect(codes(variant(b => Object.assign(b, { schemaVersion: 7 })))).toEqual(
+      ['schema_mismatch'],
+    );
+  });
+
+  it('upgrades older backups explicitly: 4 and 5 lack accounts.bankLabel', () => {
+    const withoutLabels = {
+      ...valid,
+      data: {
+        ...valid.data,
+        accounts: valid.data.accounts.map(({ bankLabel: _omit, ...rest }) => rest),
+      },
+    };
+    for (const version of [4, 5]) {
+      const parsed = parseBackup(
+        serializeBackup({ ...withoutLabels, schemaVersion: version } as BackupFile),
+        SCHEMA,
+      );
+      expect(parsed.schemaVersion).toBe(SCHEMA);
+      expect(parsed.data.accounts.every(account => account.bankLabel === null)).toBe(
+        true,
+      );
+    }
+    expect(isRestorableSchemaVersion(4, 6)).toBe(true);
+    expect(isRestorableSchemaVersion(6, 5)).toBe(false);
+    expect(isRestorableSchemaVersion(3, 6)).toBe(false);
   });
 
   it('missing, extra or mistyped top-level keys and collections', () => {

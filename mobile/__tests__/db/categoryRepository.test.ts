@@ -200,7 +200,7 @@ describe('the database is a second barrier', () => {
   it('keeps a transaction category valid (FK) and never deletes a used category', async () => {
     const [food] = await repository.list({ kind: 'expense' });
     await database.db.run(
-      sql`INSERT INTO accounts VALUES ('a', 'A', 'bank', 'GTQ', 0, ${NOW}, ${NOW}, NULL)`,
+      sql`INSERT INTO accounts VALUES ('a', 'A', 'bank', 'GTQ', 0, ${NOW}, ${NOW}, NULL, NULL)`,
     );
     const insertTx = (id: string, categoryId: string) =>
       database.db.run(sql`INSERT INTO transactions (

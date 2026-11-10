@@ -26,6 +26,7 @@ function accountValues(id: string, initialBalanceMinor = 0) {
     type: 'bank' as const,
     currency: 'GTQ',
     initialBalanceMinor,
+    bankLabel: null,
     createdAt: NOW,
     updatedAt: NOW,
     deletedAt: null,
@@ -152,6 +153,7 @@ describe('initialization and migrations', () => {
       'savings_goals',
       'schema_migrations',
       'transactions',
+      'wallet_captures',
     ]);
 
     const applied = await database.db.values<[number, string]>(
@@ -177,11 +179,19 @@ describe('initialization and migrations', () => {
       'transactions_card_id_idx',
       'transactions_category_id_local_date_idx',
       'transactions_local_date_idx',
+      'transactions_source_external_ref_unique',
       'transactions_to_account_id_idx',
+      'wallet_captures_external_ref_unique',
+      'wallet_captures_status_posted_at_idx',
     ]);
+    // Deduplicates automatic sources even after the movement is archived.
+    expect(byName.transactions_source_external_ref_unique).toMatch(
+      /WHERE "transactions"\."external_ref" IS NOT NULL$/,
+    );
     for (const name of Object.keys(byName).filter(
       n =>
-        n.startsWith('transactions_') ||
+        (n.startsWith('transactions_') &&
+          n !== 'transactions_source_external_ref_unique') ||
         n.startsWith('budgets_') ||
         n.startsWith('savings_goals_'),
     )) {
@@ -236,7 +246,7 @@ describe('initialization and migrations', () => {
     function rebuildAccounts(copyRows: string): MigrationBundle {
       const statements = [
         'PRAGMA foreign_keys=OFF;',
-        'CREATE TABLE `__new_accounts` (`id` text PRIMARY KEY NOT NULL, `name` text NOT NULL, `type` text NOT NULL, `currency` text NOT NULL, `initial_balance_minor` integer NOT NULL, `created_at` text NOT NULL, `updated_at` text NOT NULL, `deleted_at` text);',
+        'CREATE TABLE `__new_accounts` (`id` text PRIMARY KEY NOT NULL, `name` text NOT NULL, `type` text NOT NULL, `currency` text NOT NULL, `initial_balance_minor` integer NOT NULL, `created_at` text NOT NULL, `updated_at` text NOT NULL, `deleted_at` text, `bank_label` text);',
         copyRows,
         'DROP TABLE `accounts`;',
         'ALTER TABLE `__new_accounts` RENAME TO `accounts`;',

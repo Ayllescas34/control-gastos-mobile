@@ -28,6 +28,7 @@ const account: Account = {
   type: 'bank',
   currency: 'GTQ',
   initialBalanceMinor: -12345,
+  bankLabel: 'TCREDITO',
   createdAt: NOW,
   updatedAt: NOW,
   deletedAt: null,

@@ -27,6 +27,12 @@ export const accounts = sqliteTable(
     initialBalanceMinor: integer('initial_balance_minor', {
       mode: 'number',
     }).notNull(),
+    /**
+     * How the bank names this account in its SMS ("TCREDITO", "BICHEQUE3"); several
+     * separated by commas. Bank messages are matched to the account by it
+     * (docs/bank-messages.md). Shape validated by the domain.
+     */
+    bankLabel: text('bank_label'),
     ...timestampColumns,
   },
   table => [

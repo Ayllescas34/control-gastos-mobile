@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { Fragment } from 'react';
+import { StyleSheet, View } from 'react-native';
 import {
   AppText,
   Button,
@@ -7,17 +8,22 @@ import {
   EmptyState,
   LoadingState,
   Screen,
+  SectionHeader,
 } from '../../../shared/components';
+import { spacing } from '../../../shared/theme';
 import { TransactionListItem } from '../../transactions';
+import { WalletConnectionCard } from '../../wallet';
 import { CategoryBreakdown } from '../components/CategoryBreakdown';
 import { formatPeriodLabel } from '../components/dashboardPresentation';
 import { EvolutionChart } from '../components/EvolutionChart';
 import { SummaryCards } from '../components/SummaryCards';
+import { WalletCarousel } from '../components/WalletCarousel';
 import { useDashboard } from '../hooks/useDashboard';
 
 /**
- * Inicio: real figures from SQLite for the current month (docs/dashboard.md). Reloads on
- * focus, so changes made on other screens show up when coming back.
+ * Inicio, laid out like a wallet: the accounts as cards, the Google Wallet status, then the
+ * current month's real figures from SQLite (docs/dashboard.md). Reloads on focus, so
+ * changes made on other screens (and new Google Wallet payments) show up when coming back.
  */
 export function DashboardScreen() {
   const navigation = useNavigation();
@@ -40,8 +46,15 @@ export function DashboardScreen() {
     );
   }
 
-  const { period, summaries, recentTransactions, references, isEmpty } =
-    resource.data;
+  const {
+    period,
+    summaries,
+    recentTransactions,
+    references,
+    walletAccounts,
+    wallet,
+    isEmpty,
+  } = resource.data;
 
   if (isEmpty) {
     return (
@@ -64,6 +77,34 @@ export function DashboardScreen() {
 
   return (
     <Screen>
+      <View style={styles.section}>
+        <SectionHeader
+          title="Tus tarjetas"
+          action={{
+            label: 'Administrar',
+            testID: 'dashboard-manage-accounts',
+            accessibilityHint: 'Abre la administración de cuentas y tarjetas',
+            onPress: () => navigation.navigate('Accounts'),
+          }}
+        />
+        <WalletCarousel
+          accounts={walletAccounts}
+          onOpenAccount={accountId =>
+            navigation.navigate('AccountDetail', { accountId })
+          }
+          onAddAccount={() => navigation.navigate('AccountForm')}
+        />
+      </View>
+
+      {wallet.connection !== 'unsupported' && (
+        <WalletConnectionCard
+          testID="dashboard-wallet"
+          connection={wallet.connection}
+          reviewCount={wallet.reviewCount}
+          onPress={() => navigation.navigate('Wallet')}
+        />
+      )}
+
       {summaries.map(summary => (
         <Fragment key={summary.currency}>
           {showCurrency && (
@@ -113,3 +154,9 @@ export function DashboardScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  section: {
+    gap: spacing.sm,
+  },
+});

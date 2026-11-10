@@ -2,7 +2,13 @@ import { StyleSheet, View } from 'react-native';
 import { AppText, Card } from '../../../shared/components';
 import { IconBadge, type IconName, type IconTone } from '../../../shared/icons';
 import { formatMoney, type CurrencyCode } from '../../../shared/lib/money';
-import { layout, spacing, type ColorName } from '../../../shared/theme';
+import {
+  layout,
+  radius,
+  spacing,
+  useAppTheme,
+  type ColorName,
+} from '../../../shared/theme';
 import type { CurrencySummary } from '../domain/dashboardSummary';
 
 type SummaryCardsProps = {
@@ -12,13 +18,23 @@ type SummaryCardsProps = {
 
 /** Total balance of the active accounts, then the month's income and expenses. */
 export function SummaryCards({ summary, periodLabel }: SummaryCardsProps) {
+  const theme = useAppTheme();
   const { currency, balanceMinor } = summary;
   const balance =
     balanceMinor === null ? null : formatMoney(balanceMinor, currency);
 
   return (
     <>
-      <Card>
+      <View
+        style={[
+          styles.hero,
+          {
+            backgroundColor: theme.walletCardFaces.blue.solid,
+            backgroundImage: theme.primaryGradient,
+          },
+          theme.shadows.md,
+        ]}
+      >
         <View
           testID={`dashboard-balance-${currency}`}
           accessible
@@ -28,27 +44,28 @@ export function SummaryCards({ summary, periodLabel }: SummaryCardsProps) {
               : `Balance total: ${balance}`
           }
         >
-          <AppText variant="caption" color="textSecondary">
+          <AppText variant="label" color="onFeaturedMuted">
             Balance total
           </AppText>
           {balance === null ? (
-            <AppText color="textSecondary">
+            <AppText color="onFeatured">
               Sin cuentas activas en {currency}.
             </AppText>
           ) : (
             <AppText
               variant="amountHero"
+              color="onFeatured"
               numberOfLines={1}
               adjustsFontSizeToFit
             >
               {balance}
             </AppText>
           )}
-          <AppText variant="caption" color="textSecondary">
+          <AppText variant="caption" color="onFeaturedMuted">
             Saldo actual de tus cuentas activas
           </AppText>
         </View>
-      </Card>
+      </View>
 
       <Card>
         <AppText variant="heading" accessibilityRole="header">
@@ -121,6 +138,11 @@ function PeriodRow({
 }
 
 const styles = StyleSheet.create({
+  hero: {
+    borderRadius: radius.cardFeatured,
+    padding: layout.cardPadding,
+    gap: spacing.xs,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

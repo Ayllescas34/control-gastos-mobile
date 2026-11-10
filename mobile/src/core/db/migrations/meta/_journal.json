@@ -36,6 +36,20 @@
       "when": 1791042551589,
       "tag": "0004_savings_goals",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1794278818468,
+      "tag": "0005_google_wallet",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1794285008650,
+      "tag": "0006_bank_messages",
+      "breakpoints": true
     }
   ]
 }

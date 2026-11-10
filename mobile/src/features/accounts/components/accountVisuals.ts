@@ -1,4 +1,5 @@
 import type { IconName } from '../../../shared/icons';
+import type { WalletCardTone } from '../../../shared/theme';
 import {
   ACCOUNT_TYPES,
   CARD_NETWORKS,
@@ -6,17 +7,44 @@ import {
   type CardNetwork,
 } from '../domain/types';
 
-/** Spanish label and icon per account type. The stored value is always the domain type. */
+/**
+ * Spanish label, icon and wallet card face per account type. The stored value is always the
+ * domain type.
+ */
 export const ACCOUNT_TYPE_VISUALS: Record<
   AccountType,
-  { label: string; icon: IconName }
+  { label: string; icon: IconName; cardTone: WalletCardTone }
 > = {
-  cash: { label: 'Efectivo', icon: 'cash' },
-  bank: { label: 'Banco', icon: 'bank' },
-  savings: { label: 'Ahorros', icon: 'wallet' },
-  credit_card: { label: 'Crédito', icon: 'creditCard' },
-  other: { label: 'Otro', icon: 'wallet' },
+  cash: { label: 'Efectivo', icon: 'cash', cardTone: 'orange' },
+  bank: { label: 'Banco', icon: 'bank', cardTone: 'blue' },
+  savings: { label: 'Ahorros', icon: 'wallet', cardTone: 'teal' },
+  credit_card: { label: 'Crédito', icon: 'creditCard', cardTone: 'graphite' },
+  other: { label: 'Otro', icon: 'wallet', cardTone: 'violet' },
 };
+
+const CARD_TONES: readonly WalletCardTone[] = [
+  'blue',
+  'violet',
+  'teal',
+  'orange',
+  'graphite',
+];
+
+/**
+ * Face colour of each account in a wallet, in order: the type's colour, shifted for every
+ * earlier account of the same type, so two savings accounts never look identical.
+ */
+export function walletCardTones(
+  accounts: readonly { type: AccountType }[],
+): WalletCardTone[] {
+  const seen: Partial<Record<AccountType, number>> = {};
+  return accounts.map(({ type }) => {
+    const repeat = seen[type] ?? 0;
+    seen[type] = repeat + 1;
+    const start = CARD_TONES.indexOf(ACCOUNT_TYPE_VISUALS[type].cardTone);
+    return CARD_TONES[(start + repeat) % CARD_TONES.length];
+  });
+}
 
 export const ACCOUNT_TYPE_OPTIONS = ACCOUNT_TYPES.map(type => ({
   value: type,

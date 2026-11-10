@@ -15,6 +15,9 @@ export type ColorPalette = {
   error: string;
   warning: string;
   success: string;
+  /** Text and icons over featured gradient surfaces (balance hero, wallet cards). */
+  onFeatured: string;
+  onFeaturedMuted: string;
 };
 
 export type ColorName = keyof ColorPalette;
@@ -27,7 +30,7 @@ export const lightColors: ColorPalette = {
   border: '#E2E8F0',
   textPrimary: '#0F172A',
   textSecondary: '#64748B',
-  primary: '#2563EB',
+  primary: '#1A73E8',
   onPrimary: '#FFFFFF',
   secondary: '#0F766E',
   income: '#15803D',
@@ -36,6 +39,8 @@ export const lightColors: ColorPalette = {
   error: '#DC2626',
   warning: '#B45309',
   success: '#15803D',
+  onFeatured: '#FFFFFF',
+  onFeaturedMuted: 'rgba(255, 255, 255, 0.78)',
 };
 
 export const darkColors: ColorPalette = {
@@ -45,7 +50,7 @@ export const darkColors: ColorPalette = {
   border: '#1E293B',
   textPrimary: '#F1F5F9',
   textSecondary: '#94A3B8',
-  primary: '#60A5FA',
+  primary: '#8AB4F8',
   onPrimary: '#0B1120',
   secondary: '#2DD4BF',
   income: '#4ADE80',
@@ -54,8 +59,32 @@ export const darkColors: ColorPalette = {
   error: '#FB7185',
   warning: '#FBBF24',
   success: '#4ADE80',
+  onFeatured: '#FFFFFF',
+  onFeaturedMuted: 'rgba(255, 255, 255, 0.78)',
 };
 
 /** Featured surfaces (e.g. the balance card). Native `backgroundImage`, no gradient library. */
-export const lightPrimaryGradient = 'linear-gradient(135deg, #1E3A8A, #2563EB)';
-export const darkPrimaryGradient = 'linear-gradient(135deg, #1E3A8A, #1D4ED8)';
+export const lightPrimaryGradient = 'linear-gradient(135deg, #0B3D91, #1A73E8)';
+export const darkPrimaryGradient = 'linear-gradient(135deg, #0B2A66, #1A56C4)';
+
+export type WalletCardTone =
+  | 'blue'
+  | 'violet'
+  | 'teal'
+  | 'orange'
+  | 'graphite';
+
+/**
+ * Wallet card faces: a gradient plus a solid fallback of the same hue (shown where
+ * `backgroundImage` is not rendered). White text keeps AA contrast on every one.
+ */
+export const walletCardFaces: Record<
+  WalletCardTone,
+  { gradient: string; solid: string }
+> = {
+  blue: { gradient: 'linear-gradient(135deg, #1A73E8, #0B3D91)', solid: '#1557B0' },
+  violet: { gradient: 'linear-gradient(135deg, #7C3AED, #312E81)', solid: '#5B21B6' },
+  teal: { gradient: 'linear-gradient(135deg, #0F766E, #064E3B)', solid: '#0F5F57' },
+  orange: { gradient: 'linear-gradient(135deg, #C2410C, #7C2D12)', solid: '#9A3412' },
+  graphite: { gradient: 'linear-gradient(135deg, #334155, #0F172A)', solid: '#1E293B' },
+};

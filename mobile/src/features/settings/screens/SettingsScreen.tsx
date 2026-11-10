@@ -9,6 +9,14 @@ export function SettingsScreen() {
     <Screen>
       <Card>
         <ListItem
+          testID="settings-wallet"
+          title="Pagos automáticos"
+          subtitle="Google Wallet y SMS de tu banco"
+          leading={<IconBadge name="contactless" variant="primary" />}
+          onPress={() => navigation.navigate('Wallet')}
+          accessibilityHint="Abre la captura automática de pagos"
+        />
+        <ListItem
           testID="settings-accounts"
           title="Cuentas"
           subtitle="Administra tus cuentas y tarjetas"

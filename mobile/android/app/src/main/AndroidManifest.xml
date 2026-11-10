@@ -24,5 +24,16 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <!-- Reads Google Wallet payment notifications once the user grants notification access
+           in system settings (docs/google-wallet.md). Only the system can bind to it. -->
+      <service
+        android:name=".wallet.WalletNotificationListener"
+        android:label="@string/app_name"
+        android:exported="false"
+        android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+        <intent-filter>
+          <action android:name="android.service.notification.NotificationListenerService" />
+        </intent-filter>
+      </service>
     </application>
 </manifest>

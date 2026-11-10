@@ -23,7 +23,11 @@ import type { EntityId, LocalDate } from '../../../shared/domain';
 import { nowIsoDateTime } from '../../../shared/lib/dates';
 import type { CurrencyCode, MinorUnits } from '../../../shared/lib/money';
 import { SEARCH_FOLDS, foldSearchText } from '../../../shared/lib/text';
-import type { Transaction, TransactionType } from '../domain/types';
+import type {
+  Transaction,
+  TransactionStatus,
+  TransactionType,
+} from '../domain/types';
 import {
   validateTransaction,
   type TransactionValidationContext,
@@ -41,6 +45,8 @@ export type TransactionChanges = Partial<NewTransaction>;
 /** Every filter is optional and they combine (AND). */
 export type TransactionFilters = {
   type?: TransactionType;
+  /** e.g. `pending`: payments captured from Google Wallet waiting for review. */
+  status?: TransactionStatus;
   /** Movements of the account: the ones it originates plus incoming transfers. */
   accountId?: EntityId;
   categoryId?: EntityId;
@@ -227,6 +233,9 @@ export function createTransactionRepository(db: AppDatabase) {
     const conditions: SQL[] = [notDeleted(transactions)];
     if (filters.type) {
       conditions.push(eq(transactions.type, filters.type));
+    }
+    if (filters.status) {
+      conditions.push(eq(transactions.status, filters.status));
     }
     if (filters.accountId) {
       const byAccount = or(

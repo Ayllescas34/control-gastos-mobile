@@ -32,6 +32,7 @@ const account = (fields: Partial<Account>): Account => ({
   type: 'bank',
   currency: 'GTQ',
   initialBalanceMinor: 0,
+  bankLabel: null,
   createdAt: STAMP,
   updatedAt: STAMP,
   deletedAt: null,
@@ -198,7 +199,7 @@ describe('parseTransactionForm', () => {
     });
   });
 
-  it('keeps the instant and origin of an edited movement when its date is unchanged', () => {
+  it('keeps the instant and origin of an edited movement when its date is unchanged, and confirms it', () => {
     const previous: Transaction = {
       id: 't1',
       type: 'expense',
@@ -231,7 +232,8 @@ describe('parseTransactionForm', () => {
       occurredAt: '2026-10-10T20:15:00.000Z',
       localDate: '2026-10-10',
       source: 'import',
-      status: 'pending',
+      // Saving the form is the review (docs/google-wallet.md).
+      status: 'confirmed',
       externalRef: 'bank-1',
     });
   });

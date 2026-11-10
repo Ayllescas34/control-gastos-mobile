@@ -6,6 +6,7 @@ import {
   integer,
   sqliteTable,
   text,
+  uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
 import { accounts } from './accounts';
 import { cards } from './cards';
@@ -31,7 +32,8 @@ export const TRANSACTION_STATUSES = ['confirmed', 'pending'] as const;
 
 /**
  * A transfer is a single row: account_id (origin) → to_account_id (destination).
- * UNIQUE(source, external_ref) is intentionally deferred to the import/integration stage.
+ * UNIQUE(source, external_ref) (only when external_ref is set) keeps automatic sources such as
+ * Google Wallet notifications from registering the same payment twice (docs/google-wallet.md).
  */
 export const transactions = sqliteTable(
   'transactions',
@@ -84,6 +86,9 @@ export const transactions = sqliteTable(
       .where(
         sql`${table.categoryId} IS NOT NULL AND ${table.deletedAt} IS NULL`,
       ),
+    uniqueIndex('transactions_source_external_ref_unique')
+      .on(table.source, table.externalRef)
+      .where(sql`${table.externalRef} IS NOT NULL`),
     index('transactions_card_id_idx')
       .on(table.cardId)
       .where(sql`${table.cardId} IS NOT NULL AND ${table.deletedAt} IS NULL`),

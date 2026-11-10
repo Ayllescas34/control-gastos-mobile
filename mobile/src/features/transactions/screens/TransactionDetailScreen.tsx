@@ -41,6 +41,7 @@ export function TransactionDetailScreen({ navigation, route }: Props) {
   const { resource, reload } = useTransactionDetail(transactionId);
   const repositories = useTransactionRepositories();
   const [archiving, setArchiving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   if (resource.status === 'loading') {
     return <LoadingState accessibilityLabel="Cargando movimiento" />;
@@ -90,6 +91,24 @@ export function TransactionDetailScreen({ navigation, route }: Props) {
     }
   }
 
+  async function confirmReview() {
+    setConfirming(true);
+    try {
+      await repositories.transactions.update(transaction.id, {
+        status: 'confirmed',
+      });
+      reload();
+    } catch (error) {
+      console.error('Confirm transaction failed', error);
+      Alert.alert(
+        'No se pudo confirmar el movimiento',
+        describeTransactionsError(error),
+      );
+    } finally {
+      setConfirming(false);
+    }
+  }
+
   function confirmArchive() {
     Alert.alert(
       '¿Archivar movimiento?',
@@ -101,8 +120,31 @@ export function TransactionDetailScreen({ navigation, route }: Props) {
     );
   }
 
+  const fromWallet = transaction.source === 'notification';
+
   return (
     <Screen>
+      {transaction.status === 'pending' && (
+        <Card style={styles.summary}>
+          <View style={styles.typeRow}>
+            <IconBadge name="contactless" variant="warning" />
+            <AppText variant="bodyStrong" style={styles.flex}>
+              Por revisar
+            </AppText>
+          </View>
+          <AppText color="textSecondary">
+            {fromWallet
+              ? 'Se registró solo a partir de un pago con Google Wallet. Revisa la categoría y confírmalo.'
+              : 'Este movimiento está pendiente de revisión.'}
+          </AppText>
+          <Button
+            testID="transaction-confirm"
+            title="Confirmar movimiento"
+            loading={confirming}
+            onPress={confirmReview}
+          />
+        </Card>
+      )}
       <Card style={styles.summary}>
         <View style={styles.typeRow}>
           <IconBadge name={view.icon} variant={view.tone} />
@@ -166,6 +208,7 @@ export function TransactionDetailScreen({ navigation, route }: Props) {
         <DetailRow label="Descripción" value={transaction.description ?? '—'} />
         <DetailRow label="Nota" value={transaction.note ?? '—'} />
         <DetailRow label="Moneda" value={transaction.currency} />
+        {fromWallet && <DetailRow label="Origen" value="Google Wallet" />}
       </Card>
 
       <View style={styles.actions}>
@@ -203,5 +246,8 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: spacing.md,
+  },
+  flex: {
+    flex: 1,
   },
 });

@@ -106,6 +106,8 @@ function EditAccount({
             name: input.name,
             type: input.type,
             initialBalanceMinor: input.initialBalanceMinor,
+            // null clears it: the user emptied the field.
+            bankLabel: input.bankLabel ?? null,
           });
           if (!updated) {
             throw new EntityNotAvailableError('account');

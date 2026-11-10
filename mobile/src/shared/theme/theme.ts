@@ -3,6 +3,7 @@ import {
   darkPrimaryGradient,
   lightColors,
   lightPrimaryGradient,
+  walletCardFaces,
   type ColorPalette,
 } from './colors';
 import { iconSize, iconStrokeWidth } from './iconography';
@@ -15,6 +16,8 @@ export type AppTheme = {
   colors: ColorPalette;
   /** CSS linear-gradient for the native `backgroundImage` style. */
   primaryGradient: string;
+  /** Faces of the wallet cards (accounts on Inicio). Same in light and dark. */
+  walletCardFaces: typeof walletCardFaces;
   shadows: Shadows;
   spacing: typeof spacing;
   layout: typeof layout;
@@ -28,6 +31,7 @@ export const lightTheme: AppTheme = {
   dark: false,
   colors: lightColors,
   primaryGradient: lightPrimaryGradient,
+  walletCardFaces,
   shadows: lightShadows,
   spacing,
   layout,
@@ -41,6 +45,7 @@ export const darkTheme: AppTheme = {
   dark: true,
   colors: darkColors,
   primaryGradient: darkPrimaryGradient,
+  walletCardFaces,
   shadows: darkShadows,
   spacing,
   layout,

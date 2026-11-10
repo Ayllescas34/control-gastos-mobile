@@ -1,6 +1,11 @@
 import { useCallback } from 'react';
 import { appConfig } from '../../../core/config/appConfig';
-import { useAsyncResource, useReloadOnFocus } from '../../../shared/hooks';
+import { useDatabase } from '../../../core/db';
+import {
+  useAsyncResource,
+  useReloadOnFocus,
+  useReloadOnForeground,
+} from '../../../shared/hooks';
 import { monthRange } from '../../../shared/lib/dates';
 // By module, not the transactions feature index, to keep features free of import cycles.
 import type { LocalDateRange } from '../../transactions/data/transactionRepository';
@@ -10,6 +15,11 @@ import {
   loadReferences,
   useTransactionRepositories,
 } from '../../transactions/hooks/transactionHooks';
+import {
+  loadWalletSummary,
+  type WalletSummary,
+} from '../../wallet/hooks/walletHooks';
+import type { WalletAccount } from '../components/WalletCarousel';
 import {
   summarizeByCurrency,
   type CurrencySummary,
@@ -26,6 +36,10 @@ export type DashboardData = {
   recentTransactions: Transaction[];
   /** Names and icons of accounts, cards and categories, archived ones included. */
   references: ReferenceLookup;
+  /** Active accounts as wallet cards, with their balance and active cards. */
+  walletAccounts: WalletAccount[];
+  /** Google Wallet connection and payments waiting for review. */
+  wallet: WalletSummary;
   /** No active account and no movement yet: a new install. */
   isEmpty: boolean;
 };
@@ -36,8 +50,11 @@ export type DashboardData = {
  * balance. The month is computed at load time, so it rolls over on the next focus.
  */
 export function useDashboard() {
+  const database = useDatabase();
   const repositories = useTransactionRepositories();
   const load = useCallback(async (): Promise<DashboardData> => {
+    // Pending Google Wallet payments become movements before the figures are read.
+    const wallet = await loadWalletSummary(database, repositories);
     const period = monthRange(new Date());
     const [
       accounts,
@@ -65,11 +82,19 @@ export function useDashboard() {
       }),
       recentTransactions,
       references,
+      walletAccounts: accounts.map(account => ({
+        account,
+        balanceMinor: balances[account.id] ?? null,
+        cards: references.activeCardsOf(account.id),
+      })),
+      wallet,
       isEmpty: accounts.length === 0 && recentTransactions.length === 0,
     };
-  }, [repositories]);
+  }, [database, repositories]);
 
   const { resource, reload } = useAsyncResource(load);
   useReloadOnFocus(reload);
+  // Back from system settings or after a Google Wallet payment in the background.
+  useReloadOnForeground(reload);
   return { resource, reload };
 }

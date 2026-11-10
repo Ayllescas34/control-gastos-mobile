@@ -16,7 +16,7 @@ describe('parseAccountForm', () => {
   it('builds a domain input with the balance in integer minor units', () => {
     expect(
       parseAccountForm(
-        { name: '  Banco  ', type: 'bank', initialBalance: '12,500.50' },
+        { name: '  Banco  ', type: 'bank', initialBalance: '12,500.50', bankLabel: '' },
         'GTQ',
       ),
     ).toEqual({
@@ -26,13 +26,14 @@ describe('parseAccountForm', () => {
         type: 'bank',
         currency: 'GTQ',
         initialBalanceMinor: 1250050,
+        bankLabel: null,
       },
     });
   });
 
   it('treats an empty balance as 0', () => {
     const result = parseAccountForm(
-      { name: 'Efectivo', type: 'cash', initialBalance: '' },
+      { name: 'Efectivo', type: 'cash', initialBalance: '', bankLabel: '' },
       'GTQ',
     );
     expect(result.ok && result.input.initialBalanceMinor).toBe(0);
@@ -40,7 +41,7 @@ describe('parseAccountForm', () => {
 
   it('accepts a negative balance (credit card debt)', () => {
     const result = parseAccountForm(
-      { name: 'Visa', type: 'credit_card', initialBalance: '-1,500' },
+      { name: 'Visa', type: 'credit_card', initialBalance: '-1,500', bankLabel: '' },
       'GTQ',
     );
     expect(result.ok && result.input.initialBalanceMinor).toBe(-150000);
@@ -62,7 +63,10 @@ describe('parseAccountForm', () => {
     ['99999999999999999', 'El monto es demasiado grande.'],
   ])('rejects the balance "%s"', (initialBalance, message) => {
     expect(
-      parseAccountForm({ name: 'Banco', type: 'bank', initialBalance }, 'GTQ'),
+      parseAccountForm(
+        { name: 'Banco', type: 'bank', initialBalance, bankLabel: '' },
+        'GTQ',
+      ),
     ).toEqual({ ok: false, errors: { initialBalance: message } });
   });
 
@@ -73,6 +77,7 @@ describe('parseAccountForm', () => {
       type: 'savings',
       currency: 'GTQ',
       initialBalanceMinor: 50005,
+      bankLabel: 'TCREDITO, BICHEQUE3',
       createdAt: NOW,
       updatedAt: NOW,
       deletedAt: null,
@@ -81,6 +86,32 @@ describe('parseAccountForm', () => {
       name: 'Ahorro',
       type: 'savings',
       initialBalance: '500.05',
+      bankLabel: 'TCREDITO, BICHEQUE3',
+    });
+  });
+
+  it('normalizes the bank identifiers and rejects symbols banks never use', () => {
+    const result = parseAccountForm(
+      {
+        name: 'Visa',
+        type: 'credit_card',
+        initialBalance: '',
+        bankLabel: ' tcredito ,  ****1234, TCREDITO ',
+      },
+      'GTQ',
+    );
+    expect(result.ok && result.input.bankLabel).toBe('TCREDITO, ****1234');
+    expect(
+      parseAccountForm(
+        { name: 'Visa', type: 'credit_card', initialBalance: '', bankLabel: 'T CRED!' },
+        'GTQ',
+      ),
+    ).toEqual({
+      ok: false,
+      errors: {
+        bankLabel:
+          'Usa letras y números como aparecen en el SMS (ej. TCREDITO), separados por coma.',
+      },
     });
   });
 });

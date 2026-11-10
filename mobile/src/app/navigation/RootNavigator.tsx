@@ -27,6 +27,10 @@ import {
   TransactionDetailScreen,
   TransactionFormScreen,
 } from '../../features/transactions';
+import {
+  RegisterWalletCaptureScreen,
+  WalletScreen,
+} from '../../features/wallet';
 import { useAppTheme, type AppTheme } from '../../shared/theme';
 import { MainTabs } from './MainTabs';
 import type { RootStackParamList } from './types';
@@ -112,6 +116,16 @@ export function RootStack() {
         name="Backup"
         component={BackupScreen}
         options={{ title: 'Respaldo de datos' }}
+      />
+      <Stack.Screen
+        name="Wallet"
+        component={WalletScreen}
+        options={{ title: 'Pagos automáticos' }}
+      />
+      <Stack.Screen
+        name="RegisterWalletCapture"
+        component={RegisterWalletCaptureScreen}
+        options={{ title: 'Registrar movimiento', presentation: 'modal' }}
       />
     </Stack.Navigator>
   );

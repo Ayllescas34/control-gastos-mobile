@@ -23,6 +23,11 @@ export type Account = Timestamps & {
   currency: CurrencyCode;
   /** Signed balance when the account was created. Negative means debt (e.g. credit card). */
   initialBalanceMinor: MinorUnits;
+  /**
+   * How the bank names the account in its SMS ("TCREDITO", "BICHEQUE3"), several separated
+   * by commas; null when not set. See parseBankLabels and docs/bank-messages.md.
+   */
+  bankLabel: string | null;
 };
 
 export const CARD_NETWORKS = ['visa', 'mastercard', 'amex', 'other'] as const;

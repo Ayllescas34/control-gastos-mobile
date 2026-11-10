@@ -21,12 +21,16 @@ export const TransactionListItem = memo(function TransactionListItemView({
   showDate = true,
 }: TransactionListItemProps) {
   const view = describeTransaction(transaction, references);
+  const context =
+    transaction.status === 'pending'
+      ? `Por revisar · ${view.context}`
+      : view.context;
 
   return (
     <ListItem
       testID={`transaction-${transaction.id}`}
       title={view.title}
-      subtitle={showDate ? `${view.context} · ${view.date}` : view.context}
+      subtitle={showDate ? `${context} · ${view.date}` : context}
       leading={<IconBadge name={view.icon} variant={view.tone} />}
       trailing={
         <AppText variant="amount" color={view.amountColor}>

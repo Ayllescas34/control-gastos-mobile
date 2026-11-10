@@ -34,7 +34,7 @@ const tabIcon =
       />
     );
 
-const DASHBOARD_ICON = tabIcon('home');
+const DASHBOARD_ICON = tabIcon('wallet');
 const TRANSACTIONS_ICON = tabIcon('transactions');
 const REPORTS_ICON = tabIcon('reports');
 const SETTINGS_ICON = tabIcon('settings');
@@ -45,6 +45,14 @@ export function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
+        // Flat bar on the app background, like a wallet: no border line, no shadow.
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopWidth: 0,
+        },
+        headerStyle: { backgroundColor: theme.colors.background },
+        headerShadowVisible: false,
+        headerTitleStyle: typography.title,
         // Labels use the same tokens as the icons.
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textSecondary,
@@ -57,7 +65,7 @@ export function MainTabs() {
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          title: 'Control de Gastos',
+          title: 'Mi billetera',
           tabBarLabel: 'Inicio',
           tabBarIcon: DASHBOARD_ICON,
         }}
