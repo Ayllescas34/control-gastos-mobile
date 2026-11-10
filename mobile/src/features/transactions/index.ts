@@ -21,6 +21,7 @@ export {
   type CategoryExpenseTotal,
   type DailyTotal,
   type LocalDateRange,
+  type MovementCount,
   type NewTransaction,
   type TransactionChanges,
   type TransactionFilters,

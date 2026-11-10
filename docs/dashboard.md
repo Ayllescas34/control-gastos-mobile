@@ -17,6 +17,7 @@ core/db (Drizzle sqlite-proxy) → op-sqlite → SQLite
 - No existe un `dashboardRepository`. Las consultas agregadas pertenecen a la tabla `transactions`, así que viven en `transactionRepository` junto a la expresión de saldos que ya existía.
 - `useDashboard` reutiliza `useTransactionRepositories` y `loadReferences` de la feature de movimientos (importados por módulo, no por `index`, para evitar ciclos).
 - Componentes: `SummaryCards`, `EvolutionChart`, `CategoryBreakdown` y `dashboardPresentation` (formato de porcentaje, nombre del mes y categoría). Movimientos recientes usa `TransactionListItem`.
+- Reportes (`docs/reports.md`) reutiliza `summarizeByCurrency`, `EvolutionChart`, `CategoryBreakdown` y las mismas consultas para un mes elegido; por eso los componentes aceptan un prefijo de `testID`, el mensaje vacío y la descripción del período.
 
 ## Fuente de datos
 
