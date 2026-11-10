@@ -16,6 +16,13 @@ import { WalletConnectionCard } from '../../wallet';
 import { CategoryBreakdown } from '../components/CategoryBreakdown';
 import { formatPeriodLabel } from '../components/dashboardPresentation';
 import { EvolutionChart } from '../components/EvolutionChart';
+import {
+  AccountSpendingCard,
+  BalanceTrendCard,
+  CategoryDonutCard,
+  TrendCard,
+} from '../components/InsightCards';
+import { QuickActions } from '../components/QuickActions';
 import { SummaryCards } from '../components/SummaryCards';
 import { WalletCarousel } from '../components/WalletCarousel';
 import { useDashboard } from '../hooks/useDashboard';
@@ -53,6 +60,7 @@ export function DashboardScreen() {
     references,
     walletAccounts,
     wallet,
+    insights,
     isEmpty,
   } = resource.data;
 
@@ -96,6 +104,10 @@ export function DashboardScreen() {
         />
       </View>
 
+      <QuickActions
+        onAdd={type => navigation.navigate('NewTransaction', { type })}
+      />
+
       {wallet.connection !== 'unsupported' && (
         <WalletConnectionCard
           testID="dashboard-wallet"
@@ -105,22 +117,37 @@ export function DashboardScreen() {
         />
       )}
 
-      {summaries.map(summary => (
-        <Fragment key={summary.currency}>
-          {showCurrency && (
-            <AppText variant="title" accessibilityRole="header">
-              {summary.currency}
-            </AppText>
-          )}
-          <SummaryCards summary={summary} periodLabel={periodLabel} />
-          <EvolutionChart
-            summary={summary}
-            period={period}
-            periodLabel={periodLabel}
-          />
-          <CategoryBreakdown summary={summary} references={references} />
-        </Fragment>
-      ))}
+      {summaries.map(summary => {
+        const charts = insights.find(
+          item => item.currency === summary.currency,
+        );
+        return (
+          <Fragment key={summary.currency}>
+            {showCurrency && (
+              <AppText variant="title" accessibilityRole="header">
+                {summary.currency}
+              </AppText>
+            )}
+            <SummaryCards summary={summary} periodLabel={periodLabel} />
+            {charts && (
+              <>
+                <TrendCard insights={charts} testIDPrefix="dashboard" />
+                <BalanceTrendCard insights={charts} testIDPrefix="dashboard" />
+                <CategoryDonutCard insights={charts} testIDPrefix="dashboard" />
+              </>
+            )}
+            <CategoryBreakdown summary={summary} references={references} />
+            {charts && (
+              <AccountSpendingCard insights={charts} testIDPrefix="dashboard" />
+            )}
+            <EvolutionChart
+              summary={summary}
+              period={period}
+              periodLabel={periodLabel}
+            />
+          </Fragment>
+        );
+      })}
 
       <Card>
         <AppText variant="heading" accessibilityRole="header">

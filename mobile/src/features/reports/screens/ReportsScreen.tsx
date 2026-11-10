@@ -10,6 +10,12 @@ import {
 import { CategoryBreakdown } from '../../dashboard/components/CategoryBreakdown';
 import { formatPeriodLabel } from '../../dashboard/components/dashboardPresentation';
 import { EvolutionChart } from '../../dashboard/components/EvolutionChart';
+import {
+  AccountSpendingCard,
+  BalanceTrendCard,
+  CategoryDonutCard,
+  TrendCard,
+} from '../../dashboard/components/InsightCards';
 import { MonthSelector } from '../components/MonthSelector';
 import { ReportSummary } from '../components/ReportSummary';
 import { useMonthlyReport, useReportMonth } from '../hooks/useMonthlyReport';
@@ -65,6 +71,24 @@ export function ReportsScreen() {
               </AppText>
             )}
             <ReportSummary report={report} />
+            {(() => {
+              const charts = resource.data.insights.find(
+                item => item.currency === report.currency,
+              );
+              return (
+                charts && (
+                  <>
+                    <TrendCard insights={charts} testIDPrefix="reports" />
+                    <BalanceTrendCard insights={charts} testIDPrefix="reports" />
+                    <CategoryDonutCard insights={charts} testIDPrefix="reports" />
+                    <AccountSpendingCard
+                      insights={charts}
+                      testIDPrefix="reports"
+                    />
+                  </>
+                )
+              );
+            })()}
             <CategoryBreakdown
               summary={report}
               references={resource.data.references}

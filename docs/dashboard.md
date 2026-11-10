@@ -19,6 +19,21 @@ core/db (Drizzle sqlite-proxy) → op-sqlite → SQLite
 - Componentes: `SummaryCards`, `EvolutionChart`, `CategoryBreakdown` y `dashboardPresentation` (formato de porcentaje, nombre del mes y categoría). Movimientos recientes usa `TransactionListItem`.
 - Reportes (`docs/reports.md`) reutiliza `summarizeByCurrency`, `EvolutionChart`, `CategoryBreakdown` y las mismas consultas para un mes elegido; por eso los componentes aceptan un prefijo de `testID`, el mensaje vacío y la descripción del período.
 
+## Gráficas y acciones rápidas
+
+Inicio y Reportes comparten `loadInsights` (`features/dashboard/hooks/loadInsights.ts`), que arma por moneda los datos de cuatro gráficas a partir de consultas agregadas en SQL. Las funciones puras están en `domain/chartData.ts` y los componentes genéricos en `shared/components/charts/` (Views y `react-native-svg`, que ya era dependencia; ninguna librería nueva).
+
+| Gráfica | Componente | Datos |
+|---|---|---|
+| Últimos 6 meses (ingresos vs gastos) | `TrendCard` → `PairedBarChart` | `listDailyTotals` de 6 meses sumado por mes (`monthlyTrend`). Los meses vacíos quedan en cero. Tocar un mes muestra sus cifras. |
+| Evolución del saldo | `BalanceTrendCard` → `LineChart` | Saldo total al final de cada día, calculado hacia atrás desde el saldo actual (`balanceSeries`). Las transferencias entre cuentas propias no lo cambian. Muestra como texto el saldo de hoy, el cambio del mes y el más bajo. |
+| ¿En qué se va tu dinero? | `CategoryDonutCard` → `DonutChart` | Gastos por categoría: las 5 mayores y el resto en "Otros" (`foldSlices`). La leyenda muestra el monto y el %. |
+| Gasto por cuenta o tarjeta | `AccountSpendingCard` → `BarList` | `listExpenseTotalsByAccount` (nuevo): "Visa •••• 4242" o el nombre de la cuenta. |
+
+- **Colores:** `theme.chartSeries` (5 tonos categóricos en orden fijo; un sexto pasa a "Otros", en `theme.chartOther`). Se validaron con el verificador de la guía de visualización en los dos modos: separación para daltonismo y visión normal OK. Tres tonos claros quedan por debajo de 3:1 de contraste, por eso cada gráfica muestra sus valores como texto.
+- Ingresos y gastos usan los tokens `income`/`expense` de la app. Las barras por cuenta usan un solo tono, porque comparan una misma medida.
+- **Acciones rápidas** (`QuickActions`): "Ingreso", "Gasto" y "Transferir" abren el formulario de movimiento con el tipo ya elegido (`NewTransaction { type }`).
+
 ## Fuente de datos
 
 Una carga hace, en paralelo:

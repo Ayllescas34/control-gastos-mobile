@@ -76,6 +76,14 @@ export type MovementCount = {
   count: number;
 };
 
+/** Sum of the expenses paid from one account (and card, when known) in one currency. */
+export type AccountExpenseTotal = {
+  accountId: EntityId;
+  cardId: EntityId | null;
+  currency: CurrencyCode;
+  totalMinor: MinorUnits;
+};
+
 /** Sum of the expenses of one category (null: uncategorized) in one currency. */
 export type CategoryExpenseTotal = {
   categoryId: EntityId | null;
@@ -457,6 +465,38 @@ export function createTransactionRepository(db: AppDatabase) {
         currency: row.currency,
         count: row.count,
       }));
+    },
+
+    /**
+     * Expense totals per account, card and currency in `range`, largest first (summed in
+     * SQL): how much went out through TCREDITO versus BICHEQUE3.
+     */
+    async listExpenseTotalsByAccount(
+      range: LocalDateRange,
+    ): Promise<AccountExpenseTotal[]> {
+      const totalMinor = sql<number>`sum(${transactions.amountMinor})`;
+      return db
+        .select({
+          accountId: transactions.accountId,
+          cardId: transactions.cardId,
+          currency: transactions.currency,
+          totalMinor,
+        })
+        .from(transactions)
+        .where(
+          and(
+            notDeleted(transactions),
+            eq(transactions.type, 'expense'),
+            gte(transactions.localDate, range.from),
+            lte(transactions.localDate, range.to),
+          ),
+        )
+        .groupBy(
+          transactions.accountId,
+          transactions.cardId,
+          transactions.currency,
+        )
+        .orderBy(desc(totalMinor), transactions.accountId);
     },
 
     /**

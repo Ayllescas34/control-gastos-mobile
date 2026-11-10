@@ -466,3 +466,49 @@ describe('refresh', () => {
     expect(hasText(view, 'Gasolina')).toBe(false);
   });
 });
+
+describe('Inicio charts and quick actions', () => {
+  it('draws the month charts from the same movements', async () => {
+    releaseQueries();
+    const fixture = await seedAccounts();
+    const { transactions } = repos();
+    await transactions.create(
+      movement(fixture, {
+        type: 'income',
+        amountMinor: 500000,
+        categoryId: fixture.salary.id,
+      }),
+    );
+    await transactions.create(
+      movement(fixture, {
+        amountMinor: 20000,
+        accountId: fixture.credit.id,
+        cardId: fixture.visa.id,
+        categoryId: fixture.groceries.id,
+      }),
+    );
+    const view = await open();
+
+    expect(testIds(view, `dashboard-trend-GTQ`).length).toBeGreaterThan(0);
+    expect(testIds(view, `dashboard-donut-GTQ`).length).toBeGreaterThan(0);
+    expect(testIds(view, `dashboard-balance-GTQ`).length).toBeGreaterThan(0);
+    expect(hasText(view, '¿En qué se va tu dinero?')).toBe(true);
+    expect(hasText(view, 'Gasto por cuenta o tarjeta')).toBe(true);
+    expect(hasText(view, `Visa •••• ${fixture.visa.last4}`)).toBe(true);
+  });
+
+  it('opens the movement form with the type already chosen', async () => {
+    releaseQueries();
+    await seedAccounts();
+    const view = await open();
+
+    await pressByTestId(view.root, 'quick-income');
+    expect(
+      view.root.findAll(
+        node =>
+          node.props.testID === 'transaction-type-income' &&
+          node.props.accessibilityState?.checked === true,
+      ).length,
+    ).toBeGreaterThan(0);
+  });
+});

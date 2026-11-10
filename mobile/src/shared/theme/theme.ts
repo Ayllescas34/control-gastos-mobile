@@ -1,6 +1,10 @@
 import {
+  darkChartOther,
+  darkChartSeries,
   darkColors,
   darkPrimaryGradient,
+  lightChartOther,
+  lightChartSeries,
   lightColors,
   lightPrimaryGradient,
   walletCardFaces,
@@ -18,6 +22,9 @@ export type AppTheme = {
   primaryGradient: string;
   /** Faces of the wallet cards (accounts on Inicio). Same in light and dark. */
   walletCardFaces: typeof walletCardFaces;
+  /** Categorical series for charts, in fixed order, and the neutral for "Otros". */
+  chartSeries: readonly string[];
+  chartOther: string;
   shadows: Shadows;
   spacing: typeof spacing;
   layout: typeof layout;
@@ -32,6 +39,8 @@ export const lightTheme: AppTheme = {
   colors: lightColors,
   primaryGradient: lightPrimaryGradient,
   walletCardFaces,
+  chartSeries: lightChartSeries,
+  chartOther: lightChartOther,
   shadows: lightShadows,
   spacing,
   layout,
@@ -46,6 +55,8 @@ export const darkTheme: AppTheme = {
   colors: darkColors,
   primaryGradient: darkPrimaryGradient,
   walletCardFaces,
+  chartSeries: darkChartSeries,
+  chartOther: darkChartOther,
   shadows: darkShadows,
   spacing,
   layout,

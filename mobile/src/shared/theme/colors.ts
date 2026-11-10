@@ -88,3 +88,27 @@ export const walletCardFaces: Record<
   orange: { gradient: 'linear-gradient(135deg, #C2410C, #7C2D12)', solid: '#9A3412' },
   graphite: { gradient: 'linear-gradient(135deg, #334155, #0F172A)', solid: '#1E293B' },
 };
+
+/**
+ * Categorical chart series, in fixed order (never cycled: a 6th category folds into
+ * "Otros"). Validated with the dataviz palette checker on each mode's card surface: CVD and
+ * normal-vision separation pass; three light steps sit under 3:1 contrast, so every chart
+ * that uses them shows its values as text (legend with amounts).
+ */
+export const lightChartSeries = [
+  '#2a78d6',
+  '#eb6834',
+  '#1baf7a',
+  '#eda100',
+  '#e87ba4',
+] as const;
+export const darkChartSeries = [
+  '#3987e5',
+  '#d95926',
+  '#199e70',
+  '#c98500',
+  '#d55181',
+] as const;
+/** "Otros" and other remainders: neutral, never a sixth hue. */
+export const lightChartOther = '#9b9a95';
+export const darkChartOther = '#6b6a66';

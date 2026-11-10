@@ -11,6 +11,10 @@ import {
   useTransactionRepositories,
 } from '../../transactions/hooks/transactionHooks';
 import {
+  loadInsights,
+  type CurrencyInsights,
+} from '../../dashboard/hooks/loadInsights';
+import {
   buildMonthlyReport,
   type CurrencyReport,
 } from '../domain/monthlyReport';
@@ -22,6 +26,8 @@ export type MonthlyReportData = {
   reports: CurrencyReport[];
   /** Names and icons of categories, archived ones included. */
   references: ReferenceLookup;
+  /** Chart data of the month, per currency. */
+  insights: CurrencyInsights[];
 };
 
 /** First civil day of the device's current month. */
@@ -68,8 +74,10 @@ export function useMonthlyReport(month: LocalDate) {
         loadReferences(repositories),
       ],
     );
+    const insights = await loadInsights(repositories, references, period.from);
     return {
       period,
+      insights,
       reports: buildMonthlyReport({
         dailyTotals,
         categoryTotals,

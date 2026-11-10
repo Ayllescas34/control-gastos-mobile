@@ -20,6 +20,7 @@ import {
   type WalletSummary,
 } from '../../wallet/hooks/walletHooks';
 import type { WalletAccount } from '../components/WalletCarousel';
+import { loadInsights, type CurrencyInsights } from './loadInsights';
 import {
   summarizeByCurrency,
   type CurrencySummary,
@@ -40,6 +41,8 @@ export type DashboardData = {
   walletAccounts: WalletAccount[];
   /** Google Wallet connection and payments waiting for review. */
   wallet: WalletSummary;
+  /** Chart data of the current month, per currency. */
+  insights: CurrencyInsights[];
   /** No active account and no movement yet: a new install. */
   isEmpty: boolean;
 };
@@ -71,8 +74,10 @@ export function useDashboard() {
       repositories.transactions.list({ limit: RECENT_TRANSACTIONS_LIMIT }),
       loadReferences(repositories),
     ]);
+    const insights = await loadInsights(repositories, references, period.from);
     return {
       period,
+      insights,
       summaries: summarizeByCurrency({
         accounts,
         balances,
